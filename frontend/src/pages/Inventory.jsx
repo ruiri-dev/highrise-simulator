@@ -12,6 +12,7 @@ const Inventory = ({ user, refreshUser }) => {
   const [itemsToDisenchant, setItemsToDisenchant] = useState([]);
   const [holdProgress, setHoldProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
+  const [disenchantType, setDisenchantType] = useState('selected'); // 'selected', 'duplicates', 'unfavorited'
 
   useEffect(() => {
     if (user) {
@@ -88,6 +89,7 @@ const Inventory = ({ user, refreshUser }) => {
 
     const items = inventory.filter(item => selectedItems.has(item.id));
     setItemsToDisenchant(sortByRarity(items));
+    setDisenchantType('selected');
     setShowConfirmModal(true);
   };
 
@@ -124,8 +126,40 @@ const Inventory = ({ user, refreshUser }) => {
   };
 
   const disenchantAllDuplicates = async () => {
-    if (!confirm('Disenchant all duplicate items (keeping favorited ones)?')) return;
+    // Find duplicates locally
+    const itemGroups = {};
+    inventory.forEach(item => {
+      if (!itemGroups[item.item_id]) {
+        itemGroups[item.item_id] = [];
+      }
+      itemGroups[item.item_id].push(item);
+    });
 
+    const duplicates = [];
+    for (const itemId in itemGroups) {
+      const items = itemGroups[itemId];
+      if (items.length > 1) {
+        // Keep favorited or first item, disenchant the rest
+        const sorted = items.sort((a, b) => {
+          if (a.is_favorited && !b.is_favorited) return -1;
+          if (!a.is_favorited && b.is_favorited) return 1;
+          return a.id - b.id;
+        });
+        duplicates.push(...sorted.slice(1));
+      }
+    }
+
+    if (duplicates.length === 0) {
+      alert('No duplicates found!');
+      return;
+    }
+
+    setItemsToDisenchant(sortByRarity(duplicates));
+    setDisenchantType('duplicates');
+    setShowConfirmModal(true);
+  };
+
+  const confirmDisenchantAllDuplicates = async () => {
     try {
       const response = await fetch(`${API_URL}/inventory/disenchant/duplicates`, {
         method: 'POST',
@@ -139,18 +173,17 @@ const Inventory = ({ user, refreshUser }) => {
       const result = await response.json();
 
       if (response.ok) {
-        if (result.itemsDisenchanted === 0) {
-          alert('No duplicates found!');
-        } else {
-          alert(`Disenchanted ${result.itemsDisenchanted} items! Earned ${result.goldEarned} Gold Swap Tokens and ${result.silverEarned} Silver Swap Tokens!`);
-        }
+        setShowConfirmModal(false);
+        alert(`Disenchanted ${result.itemsDisenchanted} items! Earned ${result.goldEarned} Gold Swap Tokens and ${result.silverEarned} Silver Swap Tokens!`);
         await refreshUser();
         await loadInventory();
       } else {
+        setShowConfirmModal(false);
         alert(result.error || 'Disenchant failed');
       }
     } catch (error) {
       console.error('Error disenchanting duplicates:', error);
+      setShowConfirmModal(false);
       alert('Disenchant failed');
     }
   };
@@ -169,6 +202,7 @@ const Inventory = ({ user, refreshUser }) => {
     }
 
     setItemsToDisenchant(sortByRarity(unfavorited));
+    setDisenchantType('unfavorited');
     setShowConfirmModal(true);
   };
 
@@ -591,9 +625,11 @@ const Inventory = ({ user, refreshUser }) => {
                       clearInterval(interval);
                       setIsHolding(false);
                       setHoldProgress(0);
-                      if (selectedItems.size > 0) {
+                      if (disenchantType === 'selected') {
                         confirmDisenchant();
-                      } else {
+                      } else if (disenchantType === 'duplicates') {
+                        confirmDisenchantAllDuplicates();
+                      } else if (disenchantType === 'unfavorited') {
                         confirmDisenchantAllUnfavorited();
                       }
                     }
@@ -620,9 +656,11 @@ const Inventory = ({ user, refreshUser }) => {
                       clearInterval(interval);
                       setIsHolding(false);
                       setHoldProgress(0);
-                      if (selectedItems.size > 0) {
+                      if (disenchantType === 'selected') {
                         confirmDisenchant();
-                      } else {
+                      } else if (disenchantType === 'duplicates') {
+                        confirmDisenchantAllDuplicates();
+                      } else if (disenchantType === 'unfavorited') {
                         confirmDisenchantAllUnfavorited();
                       }
                     }
