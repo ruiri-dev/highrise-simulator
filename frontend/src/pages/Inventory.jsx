@@ -118,13 +118,20 @@ const Inventory = ({ user, refreshUser }) => {
   };
 
   const disenchantAllUnfavorited = async () => {
-    const unfavorited = inventory.filter(item => !item.is_favorited);
+    // Get filtered inventory first
+    const currentFiltered = filter === 'all'
+      ? inventory
+      : inventory.filter(item => item.rarity === filter);
+
+    // Then filter for unfavorited items
+    const unfavorited = currentFiltered.filter(item => !item.is_favorited);
     if (unfavorited.length === 0) {
-      alert('No unfavorited items!');
+      alert('No unfavorited items in this filter!');
       return;
     }
 
-    if (!confirm(`Disenchant all ${unfavorited.length} unfavorited items?`)) return;
+    const filterText = filter === 'all' ? '' : ` ${filter}`;
+    if (!confirm(`Disenchant all ${unfavorited.length} unfavorited${filterText} items?`)) return;
 
     try {
       const response = await fetch(`${API_URL}/inventory/disenchant`, {
