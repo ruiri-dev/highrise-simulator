@@ -327,24 +327,65 @@ const Shop = ({ user, refreshUser }) => {
       {featuredItems.length > 0 && (
         <>
           <div style={{
-            margin: '0 20px 12px',
-            padding: '12px 16px',
-            background: activeTab === 'gold'
-              ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)'
-              : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            borderRadius: '12px',
-            textAlign: 'center',
-            fontSize: '13px',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            boxShadow: activeTab === 'gold'
-              ? '0 4px 16px rgba(251, 191, 36, 0.5)'
-              : '0 4px 12px rgba(245, 158, 11, 0.3)'
+            margin: '0 20px 20px',
+            padding: '16px',
+            background: '#fff',
+            borderRadius: '16px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}>
-            {activeTab === 'gold' ? '🌟 Limited Edition - Global Stock 🌟' : '⭐ Limited Deal ⭐'}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '8px'
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: activeTab === 'gold' ? '#fbbf24' : '#f59e0b'
+              }} />
+              <div style={{
+                fontSize: '16px',
+                fontWeight: '700',
+                color: '#000',
+                textTransform: 'capitalize'
+              }}>
+                {activeTab === 'gold' ? 'Limited Edition' : 'Limited Deal'}
+              </div>
+            </div>
+            <div style={{
+              fontSize: '13px',
+              color: '#000',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              {activeTab === 'gold'
+                ? `${featuredItems.reduce((sum, item) => sum + (item.global_stock_limit - item.global_stock_purchased), 0)} items remaining globally`
+                : `${featuredItems[0]?.stock_limit} per user limit`}
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: activeTab === 'gold'
+                ? 'rgba(251, 191, 36, 0.15)'
+                : 'rgba(245, 158, 11, 0.15)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#000'
+            }}>
+              <span>{activeTab === 'gold' ? '⚡' : '⭐'}</span>
+              <span>
+                {activeTab === 'gold'
+                  ? `${Math.round((featuredItems.reduce((sum, item) => sum + item.global_stock_purchased, 0) / featuredItems.reduce((sum, item) => sum + item.global_stock_limit, 0)) * 100)}% Claimed`
+                  : 'Exclusive Offer'}
+              </span>
+            </div>
           </div>
-          <div style={{...styles.itemsGrid, paddingBottom: '8px'}}>
+          <div style={{...styles.itemsGrid, paddingBottom: '8px', paddingTop: '0'}}>
             {featuredItems.map(item => {
               const purchased = purchases[item.id] || 0;
               const canBuy = canPurchase(item);
