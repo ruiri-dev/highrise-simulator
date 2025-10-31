@@ -585,7 +585,7 @@ const Gacha = ({ user, refreshUser }) => {
                     <img
                       src={result.item.image_url}
                       alt={result.item.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      style={{ width: '60%', height: '60%', objectFit: 'contain' }}
                     />
                   ) : (
                     <span>✨</span>
