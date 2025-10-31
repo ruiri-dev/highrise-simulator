@@ -467,7 +467,7 @@ const Gacha = ({ user, refreshUser }) => {
                       <span style={{ fontSize: '48px' }}>✨</span>
                     )}
                   </div>
-                  <div style={{ padding: '8px', fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>
+                  <div style={{ padding: '8px', fontSize: '12px', fontWeight: '600', textAlign: 'center', color: '#fff' }}>
                     {item.name}
                   </div>
                   <div style={styles.itemStars}>{getRarityStars('legendary')}</div>
