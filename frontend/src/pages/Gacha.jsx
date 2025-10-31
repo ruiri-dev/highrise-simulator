@@ -11,6 +11,8 @@ const Gacha = ({ user, refreshUser }) => {
   const [results, setResults] = useState(null);
   const [showWishModal, setShowWishModal] = useState(false);
   const [selectedFeatured, setSelectedFeatured] = useState(null);
+  const [showConfirmWishModal, setShowConfirmWishModal] = useState(false);
+  const [pendingFeaturedItem, setPendingFeaturedItem] = useState(null);
 
   useEffect(() => {
     loadGachaData();
@@ -45,8 +47,13 @@ const Gacha = ({ user, refreshUser }) => {
     }
   };
 
-  const setFeaturedItem = async (item) => {
-    if (!user || !banner) return;
+  const handleWishItemClick = (item) => {
+    setPendingFeaturedItem(item);
+    setShowConfirmWishModal(true);
+  };
+
+  const confirmWish = async () => {
+    if (!user || !banner || !pendingFeaturedItem) return;
 
     try {
       const response = await fetch(`${API_URL}/gacha/set-featured`, {
@@ -55,16 +62,18 @@ const Gacha = ({ user, refreshUser }) => {
         body: JSON.stringify({
           userId: user.id,
           bannerId: banner.id,
-          featuredItemId: item.item_id
+          featuredItemId: pendingFeaturedItem.item_id
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSelectedFeatured(item);
+        setSelectedFeatured(pendingFeaturedItem);
         setGachaState(data.state);
+        setShowConfirmWishModal(false);
         setShowWishModal(false);
+        setPendingFeaturedItem(null);
       } else {
         alert(data.error || 'Failed to set featured item');
       }
@@ -72,6 +81,11 @@ const Gacha = ({ user, refreshUser }) => {
       console.error('Error setting featured:', error);
       alert('Failed to set featured item');
     }
+  };
+
+  const cancelWish = () => {
+    setShowConfirmWishModal(false);
+    setPendingFeaturedItem(null);
   };
 
   const performPull = async (count) => {
@@ -234,6 +248,26 @@ const Gacha = ({ user, refreshUser }) => {
       cursor: 'pointer',
       transition: 'transform 0.2s'
     },
+    confirmModal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.95)',
+      zIndex: 2100,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    },
+    confirmModalContent: {
+      background: '#1a1a1a',
+      borderRadius: '16px',
+      padding: '24px',
+      maxWidth: '360px',
+      width: '100%'
+    },
     itemsGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
@@ -377,7 +411,7 @@ const Gacha = ({ user, refreshUser }) => {
         >
           <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>Open x1</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
-            <span>🎟️</span>
+            <div style={{ width: '16px', height: '16px', background: '#7c3aed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>🎫</div>
             <span>1 Spin Token</span>
           </div>
         </button>
@@ -391,7 +425,7 @@ const Gacha = ({ user, refreshUser }) => {
             <span style={{ background: '#10b981', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>+1 FREE</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
-            <span>🎟️</span>
+            <div style={{ width: '16px', height: '16px', background: '#7c3aed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>🎫</div>
             <span>10 Spin Tokens</span>
           </div>
         </button>
@@ -444,9 +478,9 @@ const Gacha = ({ user, refreshUser }) => {
                   key={i}
                   style={{
                     ...styles.wishItem,
-                    border: selectedFeatured?.item_id === item.item_id ? '3px solid #f59e0b' : '2px solid #2a2a2a'
+                    border: selectedFeatured?.item_id === item.item_id ? '3px solid #06b6d4' : '2px solid #2a2a2a'
                   }}
-                  onClick={() => setFeaturedItem(item)}
+                  onClick={() => handleWishItemClick(item)}
                 >
                   <div style={{
                     width: '100%',
@@ -473,6 +507,70 @@ const Gacha = ({ user, refreshUser }) => {
                   <div style={styles.itemStars}>{getRarityStars('legendary')}</div>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Wish Modal */}
+      {showConfirmWishModal && pendingFeaturedItem && (
+        <div style={styles.confirmModal}>
+          <div style={styles.confirmModalContent}>
+            <div style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', textAlign: 'center' }}>
+              Confirm Wish
+            </div>
+            <div style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '20px', textAlign: 'center' }}>
+              Set <span style={{ color: '#06b6d4', fontWeight: '700' }}>{pendingFeaturedItem.name}</span> as your featured item?
+            </div>
+            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{
+                width: '120px',
+                aspectRatio: '1',
+                background: getRarityColor('legendary'),
+                borderRadius: '12px',
+                overflow: 'hidden',
+                border: '3px solid #06b6d4'
+              }}>
+                {pendingFeaturedItem.image_url ? (
+                  <img
+                    src={pendingFeaturedItem.image_url}
+                    alt={pendingFeaturedItem.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '48px' }}>✨</div>
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: '#2a2a2a',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: '700'
+                }}
+                onClick={cancelWish}
+              >
+                Cancel
+              </button>
+              <button
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: '700'
+                }}
+                onClick={confirmWish}
+              >
+                Confirm
+              </button>
             </div>
           </div>
         </div>
