@@ -143,7 +143,24 @@ const Gacha = ({ user, refreshUser }) => {
       minHeight: '100vh',
       background: 'linear-gradient(180deg, #1a0a2e 0%, #0a0a0a 50%)',
       paddingTop: '70px',
-      paddingBottom: '100px'
+      paddingBottom: '100px',
+      position: 'relative'
+    },
+    tokenDisplay: {
+      position: 'absolute',
+      top: '20px',
+      right: '20px',
+      background: 'rgba(0, 0, 0, 0.8)',
+      borderRadius: '12px',
+      padding: '10px 16px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontSize: '16px',
+      fontWeight: '700',
+      color: '#fff',
+      border: '2px solid #7c3aed',
+      zIndex: 10
     },
     bannerCard: {
       margin: '20px 20px 16px',
@@ -373,6 +390,12 @@ const Gacha = ({ user, refreshUser }) => {
 
   return (
     <div style={styles.container}>
+      {/* Spin Token Display */}
+      <div style={styles.tokenDisplay}>
+        <img src="/spin-token.png" alt="Spin Token" style={{ width: '20px', height: '20px' }} />
+        <span>{user?.spin_tokens || 0}</span>
+      </div>
+
       {/* Banner Image */}
       <div style={styles.bannerCard}>
         <div style={styles.bannerImage}>
