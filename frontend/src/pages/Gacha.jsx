@@ -411,7 +411,7 @@ const Gacha = ({ user, refreshUser }) => {
         >
           <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>Open x1</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
-            <div style={{ width: '16px', height: '16px', background: '#7c3aed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>🎫</div>
+            <img src="/spin-token.png" alt="Spin Token" style={{ width: '16px', height: '16px' }} />
             <span>1 Spin Token</span>
           </div>
         </button>
@@ -425,7 +425,7 @@ const Gacha = ({ user, refreshUser }) => {
             <span style={{ background: '#10b981', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>+1 FREE</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
-            <div style={{ width: '16px', height: '16px', background: '#7c3aed', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>🎫</div>
+            <img src="/spin-token.png" alt="Spin Token" style={{ width: '16px', height: '16px' }} />
             <span>10 Spin Tokens</span>
           </div>
         </button>
@@ -450,7 +450,6 @@ const Gacha = ({ user, refreshUser }) => {
                   <span>✨</span>
                 )}
               </div>
-              <div style={styles.itemStars}>{getRarityStars('legendary')}</div>
             </div>
           ))}
         </div>
@@ -504,7 +503,6 @@ const Gacha = ({ user, refreshUser }) => {
                   <div style={{ padding: '8px', fontSize: '12px', fontWeight: '600', textAlign: 'center', color: '#fff' }}>
                     {item.name}
                   </div>
-                  <div style={styles.itemStars}>{getRarityStars('legendary')}</div>
                 </button>
               ))}
             </div>
