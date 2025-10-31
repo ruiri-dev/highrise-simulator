@@ -406,7 +406,7 @@ const Shop = ({ user, refreshUser }) => {
                         fontWeight: '700',
                         fontSize: '10px'
                       }}>
-                        {item.global_stock_purchased}/{item.global_stock_limit}
+                        {item.global_stock_limit - item.global_stock_purchased} left globally
                       </div>
                     )}
 
@@ -513,7 +513,7 @@ const Shop = ({ user, refreshUser }) => {
                     fontWeight: '700',
                     fontSize: '10px'
                   }}>
-                    {item.global_stock_purchased}/{item.global_stock_limit}
+                    {item.global_stock_limit - item.global_stock_purchased} left globally
                   </div>
                 )}
 
