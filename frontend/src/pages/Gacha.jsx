@@ -315,8 +315,8 @@ const Gacha = ({ user, refreshUser }) => {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
       gap: '8px',
-      maxWidth: '100%',
-      padding: '0 20px',
+      maxWidth: '450px',
+      width: '100%',
       marginBottom: '20px'
     },
     resultCard: {
