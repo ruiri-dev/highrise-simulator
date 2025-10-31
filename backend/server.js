@@ -5,7 +5,7 @@ import db, { initDatabase } from './database.js';
 import { performPull, performMultiPull, getDisenchantValue } from './gacha.js';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
