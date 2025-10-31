@@ -637,14 +637,15 @@ app.get('/api/items', async (req, res) => {
 // Add tokens (dev only)
 app.post('/api/dev/add-tokens', async (req, res) => {
   try {
-    const { userId, goldTokens = 0, silverTokens = 0 } = req.body;
+    const { userId, goldTokens = 0, silverTokens = 0, spinTokens = 0 } = req.body;
 
     await dbRun(`
       UPDATE users
       SET gold_swap_tokens = gold_swap_tokens + ?,
-          silver_swap_tokens = silver_swap_tokens + ?
+          silver_swap_tokens = silver_swap_tokens + ?,
+          spin_tokens = spin_tokens + ?
       WHERE id = ?
-    `, [goldTokens, silverTokens, userId]);
+    `, [goldTokens, silverTokens, spinTokens, userId]);
 
     const user = await dbGet('SELECT * FROM users WHERE id = ?', [userId]);
     res.json({ success: true, user });
