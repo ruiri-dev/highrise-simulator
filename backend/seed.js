@@ -41,7 +41,7 @@ async function seed() {
     { name: 'Plasma Whispers', type: 'aura', rarity: 'legendary', description: 'Electric plasma dragon aura', image_url: 'https://cdn.highrisegame.com/avatar/aura-n_neonwitch2025set1smoke.png' },
     { name: 'Darkwave Elegy', type: 'dress', rarity: 'legendary', description: 'Black neon dress', image_url: 'https://cdn.highrisegame.com/avatar/dress-n_neonwitch2025set2blackneondress.png' },
     { name: 'Witchfire Waves', type: 'hair', rarity: 'legendary', description: 'Purple neon hair', image_url: 'https://cdn.highrisegame.com/avatar/hair_front-n_neonwitch2025set2neonhair.png' },
-    { name: 'Voltage Inferno', type: 'bag', rarity: 'legendary', description: 'Neon fire skull', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_neonwitch2025set2neonfiressku ll.png' },
+    { name: 'Voltage Inferno', type: 'bag', rarity: 'legendary', description: 'Neon fire skull', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_neonwitch2025set2neonfireskull.png' },
     { name: 'Dripping Sorcery Cascade', type: 'hat', rarity: 'legendary', description: 'Melting witch hat', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_neonwitch2025set1witchmelting.png' },
     { name: 'Witch\'s Voltage Staff', type: 'handbag', rarity: 'legendary', description: 'Electric staff', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_neonwitch2025set1staff.png' },
 
