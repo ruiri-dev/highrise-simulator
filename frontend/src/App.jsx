@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from './components/Navigation';
 import DevTools from './components/DevTools';
-import Statistics from './components/Statistics';
 import Shop from './pages/Shop';
 import Inventory from './pages/Inventory';
 import Gacha from './pages/Gacha';
-import SwapCollection from './pages/SwapCollection';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -62,10 +60,8 @@ function App() {
         {currentPage === 'shop' && <Shop user={user} refreshUser={refreshUser} />}
         {currentPage === 'inventory' && <Inventory user={user} refreshUser={refreshUser} />}
         {currentPage === 'gacha' && <Gacha user={user} refreshUser={refreshUser} />}
-        {currentPage === 'swap' && <SwapCollection user={user} refreshUser={refreshUser} />}
       </div>
       <Navigation currentPage={currentPage} setCurrentPage={setCurrentPage} user={user} />
-      <Statistics user={user} />
       <DevTools user={user} refreshUser={refreshUser} />
     </div>
   );

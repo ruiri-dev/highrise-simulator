@@ -68,7 +68,6 @@ const Navigation = ({ currentPage, setCurrentPage, user }) => {
           {currentPage === 'shop' && 'Shop'}
           {currentPage === 'inventory' && 'My Items'}
           {currentPage === 'gacha' && 'Coven Call'}
-          {currentPage === 'swap' && 'Swap Collection'}
         </div>
         <div style={styles.tokens}>
           <div style={styles.tokenBadge}>
@@ -103,13 +102,6 @@ const Navigation = ({ currentPage, setCurrentPage, user }) => {
         >
           <span style={styles.icon}>🎰</span>
           <span>Grabs</span>
-        </button>
-        <button
-          style={{...styles.navItem, ...(currentPage === 'swap' ? styles.navItemActive : {})}}
-          onClick={() => setCurrentPage('swap')}
-        >
-          <span style={styles.icon}>♻️</span>
-          <span>Swap</span>
         </button>
       </nav>
     </>
