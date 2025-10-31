@@ -406,7 +406,15 @@ const Gacha = ({ user, refreshUser }) => {
           {legendaryItems.map((item, i) => (
             <div key={i} style={{...styles.itemCard, background: getRarityColor('legendary')}}>
               <div style={styles.itemImage}>
-                <span>✨</span>
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  <span>✨</span>
+                )}
               </div>
               <div style={styles.itemStars}>{getRarityStars('legendary')}</div>
             </div>
@@ -440,8 +448,24 @@ const Gacha = ({ user, refreshUser }) => {
                   }}
                   onClick={() => setFeaturedItem(item)}
                 >
-                  <div style={{...styles.itemImage, background: getRarityColor('legendary')}}>
-                    <span>✨</span>
+                  <div style={{
+                    width: '100%',
+                    aspectRatio: '1',
+                    background: getRarityColor('legendary'),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative'
+                  }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: '48px' }}>✨</span>
+                    )}
                   </div>
                   <div style={{ padding: '8px', fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>
                     {item.name}
@@ -461,7 +485,15 @@ const Gacha = ({ user, refreshUser }) => {
             {results.map((result, i) => (
               <div key={i} style={{...styles.resultCard, borderColor: getRarityColor(result.rarity)}}>
                 <div style={{...styles.resultImage, background: getRarityColor(result.rarity)}}>
-                  <span>✨</span>
+                  {result.item.image_url ? (
+                    <img
+                      src={result.item.image_url}
+                      alt={result.item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <span>✨</span>
+                  )}
                 </div>
                 <div style={styles.resultInfo}>
                   <div style={styles.resultName}>{result.item.name}</div>
