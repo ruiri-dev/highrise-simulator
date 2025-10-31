@@ -670,54 +670,64 @@ const Shop = ({ user, refreshUser }) => {
               </div>
 
               {/* Quantity Selector */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px',
-                background: '#1a1a1a',
-                borderRadius: '8px',
-                marginBottom: '12px'
-              }}>
-                <span style={{ fontSize: '14px', color: '#9ca3af' }}>Quantity:</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <button
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '8px',
-                      background: '#2a2a2a',
-                      color: '#fff',
-                      fontSize: '18px',
-                      fontWeight: '700',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
-                  >
-                    −
-                  </button>
-                  <span style={{ fontSize: '18px', fontWeight: '700', minWidth: '40px', textAlign: 'center' }}>
-                    {purchaseQuantity}
-                  </span>
-                  <button
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '8px',
-                      background: '#2a2a2a',
-                      color: '#fff',
-                      fontSize: '18px',
-                      fontWeight: '700',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => setPurchaseQuantity(purchaseQuantity + 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+              {(() => {
+                const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
+                const maxAffordable = Math.floor(user[tokenField] / selectedItem.price);
+                return (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px',
+                    background: '#1a1a1a',
+                    borderRadius: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <span style={{ fontSize: '14px', color: '#9ca3af' }}>Quantity:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <button
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          background: '#2a2a2a',
+                          color: '#fff',
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          border: 'none',
+                          cursor: 'pointer',
+                          opacity: purchaseQuantity <= 1 ? 0.5 : 1
+                        }}
+                        onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
+                        disabled={purchaseQuantity <= 1}
+                      >
+                        −
+                      </button>
+                      <span style={{ fontSize: '18px', fontWeight: '700', minWidth: '40px', textAlign: 'center' }}>
+                        {purchaseQuantity}
+                      </span>
+                      <button
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          background: '#2a2a2a',
+                          color: '#fff',
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          border: 'none',
+                          cursor: 'pointer',
+                          opacity: purchaseQuantity >= maxAffordable ? 0.5 : 1
+                        }}
+                        onClick={() => setPurchaseQuantity(Math.min(maxAffordable, purchaseQuantity + 1))}
+                        disabled={purchaseQuantity >= maxAffordable}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div style={{
                 display: 'flex',
