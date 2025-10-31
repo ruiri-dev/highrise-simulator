@@ -313,15 +313,17 @@ const Gacha = ({ user, refreshUser }) => {
     },
     resultsGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '16px',
-      maxWidth: '400px',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: '8px',
+      maxWidth: '100%',
+      padding: '0 20px',
       marginBottom: '20px'
     },
     resultCard: {
-      borderRadius: '16px',
+      borderRadius: '12px',
       overflow: 'hidden',
-      border: '3px solid'
+      border: '2px solid',
+      background: '#1a1a1a'
     },
     resultImage: {
       width: '100%',
@@ -329,20 +331,24 @@ const Gacha = ({ user, refreshUser }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '64px'
+      fontSize: '48px',
+      padding: '8px'
     },
     resultInfo: {
-      padding: '12px',
-      textAlign: 'center'
+      padding: '8px',
+      textAlign: 'center',
+      background: '#0a0a0a'
     },
     resultName: {
-      fontSize: '14px',
-      fontWeight: '700',
-      marginBottom: '4px'
+      fontSize: '11px',
+      fontWeight: '600',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
     },
     resultStars: {
-      fontSize: '12px',
-      marginTop: '4px'
+      fontSize: '10px',
+      marginTop: '2px'
     },
     closeButton: {
       padding: '16px 48px',
