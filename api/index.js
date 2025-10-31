@@ -52,7 +52,7 @@ app.post('/api/users', async (req, res) => {
     let user = await dbGet('SELECT * FROM users WHERE username = ?', [username]);
 
     if (!user) {
-      const result = await dbRun('INSERT INTO users (username) VALUES (?)', [username]);
+      const result = await dbRun('INSERT INTO users (username, spin_tokens) VALUES (?, 10)', [username]);
       user = await dbGet('SELECT * FROM users WHERE id = ?', [result.id]);
     }
 
