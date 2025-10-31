@@ -61,11 +61,11 @@ const Inventory = ({ user, refreshUser }) => {
 
   const calculateDisenchantRewards = (items) => {
     const rarityValues = {
-      legendary: { gold: 10, silver: 0 },
+      legendary: { gold: 20, silver: 0 },
       epic: { gold: 5, silver: 0 },
-      rare: { gold: 0, silver: 3 },
-      uncommon: { gold: 0, silver: 2 },
-      common: { gold: 0, silver: 1 }
+      rare: { gold: 0, silver: 15 },
+      uncommon: { gold: 0, silver: 1 },
+      common: { gold: 0, silver: 0 }
     };
 
     let totalGold = 0;
