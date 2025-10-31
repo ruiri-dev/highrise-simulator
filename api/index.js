@@ -323,18 +323,21 @@ app.post('/api/shop/purchase', async (req, res) => {
 
       const shouldFavorite = !existing && (item.rarity === 'legendary' || item.rarity === 'epic');
 
-      if (existing) {
-        // Add as new entry (no stacking), duplicate is NOT favorited
-        await dbRun(`
-          INSERT INTO user_inventory (user_id, item_id, quantity, is_favorited)
-          VALUES (?, ?, 1, 0)
-        `, [userId, shopItem.item_id]);
-      } else {
-        // First time getting this item, favorite if epic/legendary
-        await dbRun(`
-          INSERT INTO user_inventory (user_id, item_id, quantity, is_favorited)
-          VALUES (?, ?, 1, ?)
-        `, [userId, shopItem.item_id, shouldFavorite ? 1 : 0]);
+      // Add quantity items to inventory
+      for (let i = 0; i < quantity; i++) {
+        if (i === 0 && !existing) {
+          // First time getting this item, favorite if epic/legendary
+          await dbRun(`
+            INSERT INTO user_inventory (user_id, item_id, quantity, is_favorited)
+            VALUES (?, ?, 1, ?)
+          `, [userId, shopItem.item_id, shouldFavorite ? 1 : 0]);
+        } else {
+          // Add as new entry (no stacking), duplicate is NOT favorited
+          await dbRun(`
+            INSERT INTO user_inventory (user_id, item_id, quantity, is_favorited)
+            VALUES (?, ?, 1, 0)
+          `, [userId, shopItem.item_id]);
+        }
       }
     }
 

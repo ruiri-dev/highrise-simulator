@@ -10,6 +10,7 @@ const Shop = ({ user, refreshUser }) => {
   const [loading, setLoading] = useState(true);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [purchaseError, setPurchaseError] = useState('');
 
   useEffect(() => {
@@ -45,6 +46,7 @@ const Shop = ({ user, refreshUser }) => {
 
   const openPurchaseModal = (shopItem) => {
     setSelectedItem(shopItem);
+    setPurchaseQuantity(1);
     setPurchaseError('');
     setShowPurchaseModal(true);
   };
@@ -52,11 +54,13 @@ const Shop = ({ user, refreshUser }) => {
   const handlePurchase = async () => {
     if (!selectedItem) return;
 
+    const totalCost = selectedItem.price * purchaseQuantity;
+
     // Check if user has enough tokens
     const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
     const tokenName = activeTab === 'gold' ? 'Gold Swap Tokens' : 'Silver Swap Tokens';
-    if (user[tokenField] < selectedItem.price) {
-      setPurchaseError(`Not enough ${tokenName}! You need ${selectedItem.price} but only have ${user[tokenField]}.`);
+    if (user[tokenField] < totalCost) {
+      setPurchaseError(`Not enough ${tokenName}! You need ${totalCost} but only have ${user[tokenField]}.`);
       return;
     }
 
@@ -67,7 +71,7 @@ const Shop = ({ user, refreshUser }) => {
         body: JSON.stringify({
           userId: user.id,
           shopItemId: selectedItem.id,
-          quantity: 1
+          quantity: purchaseQuantity
         })
       });
 
@@ -665,6 +669,56 @@ const Shop = ({ user, refreshUser }) => {
                 </div>
               </div>
 
+              {/* Quantity Selector */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px',
+                background: '#1a1a1a',
+                borderRadius: '8px',
+                marginBottom: '12px'
+              }}>
+                <span style={{ fontSize: '14px', color: '#9ca3af' }}>Quantity:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: '#2a2a2a',
+                      color: '#fff',
+                      fontSize: '18px',
+                      fontWeight: '700',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
+                  >
+                    −
+                  </button>
+                  <span style={{ fontSize: '18px', fontWeight: '700', minWidth: '40px', textAlign: 'center' }}>
+                    {purchaseQuantity}
+                  </span>
+                  <button
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: '#2a2a2a',
+                      color: '#fff',
+                      fontSize: '18px',
+                      fontWeight: '700',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setPurchaseQuantity(purchaseQuantity + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -673,11 +727,11 @@ const Shop = ({ user, refreshUser }) => {
                 background: '#1a1a1a',
                 borderRadius: '8px'
               }}>
-                <span style={{ fontSize: '14px', color: '#9ca3af' }}>Price:</span>
+                <span style={{ fontSize: '14px', color: '#9ca3af' }}>Total Price:</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontSize: '18px' }}>{activeTab === 'gold' ? '🟡' : '⚪'}</span>
                   <span style={{ fontSize: '18px', fontWeight: '700', color: activeTab === 'gold' ? '#f59e0b' : '#9ca3af' }}>
-                    {selectedItem.price}
+                    {selectedItem.price * purchaseQuantity}
                   </span>
                 </div>
               </div>
