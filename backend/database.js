@@ -111,8 +111,10 @@ export function initDatabase() {
         pulls_since_5star INTEGER DEFAULT 0,
         pulls_since_4star INTEGER DEFAULT 0,
         guaranteed_featured BOOLEAN DEFAULT 0,
+        selected_featured_id INTEGER DEFAULT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id),
         FOREIGN KEY (banner_id) REFERENCES gacha_banners(id),
+        FOREIGN KEY (selected_featured_id) REFERENCES items(id),
         UNIQUE(user_id, banner_id)
       )
     `);

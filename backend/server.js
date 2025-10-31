@@ -453,6 +453,53 @@ app.get('/api/gacha/state/:userId/:bannerId', async (req, res) => {
   }
 });
 
+// Set selected featured item
+app.post('/api/gacha/set-featured', async (req, res) => {
+  try {
+    const { userId, bannerId, featuredItemId } = req.body;
+
+    // Verify the item exists and is legendary in this banner
+    const item = await dbGet(`
+      SELECT gbi.*, i.name
+      FROM gacha_banner_items gbi
+      JOIN items i ON gbi.item_id = i.id
+      WHERE gbi.banner_id = ? AND gbi.item_id = ? AND gbi.rarity = 'legendary'
+    `, [bannerId, featuredItemId]);
+
+    if (!item) {
+      return res.status(400).json({ error: 'Item not available as featured' });
+    }
+
+    // Get or create user gacha state
+    let state = await dbGet(`
+      SELECT * FROM user_gacha_state
+      WHERE user_id = ? AND banner_id = ?
+    `, [userId, bannerId]);
+
+    if (!state) {
+      await dbRun(`
+        INSERT INTO user_gacha_state (user_id, banner_id, selected_featured_id)
+        VALUES (?, ?, ?)
+      `, [userId, bannerId, featuredItemId]);
+    } else {
+      await dbRun(`
+        UPDATE user_gacha_state
+        SET selected_featured_id = ?
+        WHERE user_id = ? AND banner_id = ?
+      `, [featuredItemId, userId, bannerId]);
+    }
+
+    state = await dbGet(`
+      SELECT * FROM user_gacha_state
+      WHERE user_id = ? AND banner_id = ?
+    `, [userId, bannerId]);
+
+    res.json({ success: true, state });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Perform gacha pull
 app.post('/api/gacha/pull', async (req, res) => {
   try {
@@ -503,13 +550,16 @@ app.post('/api/gacha/pull', async (req, res) => {
       `, [userId, bannerId]);
     }
 
+    // Use user's selected featured item if set, otherwise use banner's default
+    const featuredItemId = gachaState.selected_featured_id || banner.featured_item_id;
+
     // Perform pulls
     let results;
     if (count === 1) {
-      const result = performPull(gachaState, bannerItems, banner.featured_item_id);
+      const result = performPull(gachaState, bannerItems, featuredItemId);
       results = { results: [result], newState: result.newState };
     } else {
-      results = performMultiPull(gachaState, bannerItems, banner.featured_item_id, count);
+      results = performMultiPull(gachaState, bannerItems, featuredItemId, count);
     }
 
     // Update gacha state

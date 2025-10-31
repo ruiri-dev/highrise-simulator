@@ -9,6 +9,8 @@ const Gacha = ({ user, refreshUser }) => {
   const [loading, setLoading] = useState(true);
   const [pulling, setPulling] = useState(false);
   const [results, setResults] = useState(null);
+  const [showWishModal, setShowWishModal] = useState(false);
+  const [selectedFeatured, setSelectedFeatured] = useState(null);
 
   useEffect(() => {
     loadGachaData();
@@ -26,11 +28,49 @@ const Gacha = ({ user, refreshUser }) => {
         const stateRes = await fetch(`${API_URL}/gacha/state/${user.id}/${bannerData.banner.id}`);
         const stateData = await stateRes.json();
         setGachaState(stateData);
+
+        // Set selected featured item (from state or default to first legendary)
+        const legendaries = bannerData.items.filter(i => i.rarity === 'legendary');
+        if (stateData.selected_featured_id) {
+          const featured = bannerData.items.find(i => i.item_id === stateData.selected_featured_id);
+          setSelectedFeatured(featured);
+        } else if (legendaries.length > 0) {
+          setSelectedFeatured(legendaries[0]);
+        }
       }
     } catch (error) {
       console.error('Error loading gacha:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const setFeaturedItem = async (item) => {
+    if (!user || !banner) return;
+
+    try {
+      const response = await fetch(`${API_URL}/gacha/set-featured`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          bannerId: banner.id,
+          featuredItemId: item.item_id
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSelectedFeatured(item);
+        setGachaState(data.state);
+        setShowWishModal(false);
+      } else {
+        alert(data.error || 'Failed to set featured item');
+      }
+    } catch (error) {
+      console.error('Error setting featured:', error);
+      alert('Failed to set featured item');
     }
   };
 
@@ -88,89 +128,111 @@ const Gacha = ({ user, refreshUser }) => {
     container: {
       minHeight: '100vh',
       background: 'linear-gradient(180deg, #1a0a2e 0%, #0a0a0a 50%)',
-      paddingTop: '70px'
+      paddingTop: '70px',
+      paddingBottom: '100px'
     },
     bannerCard: {
-      margin: '20px',
-      borderRadius: '20px',
-      overflow: 'hidden',
-      background: 'linear-gradient(135deg, #2a1a4a 0%, #1a1a3a 100%)',
-      border: '2px solid #7c3aed'
+      margin: '20px 20px 16px',
+      borderRadius: '16px',
+      overflow: 'hidden'
     },
     bannerImage: {
       width: '100%',
       aspectRatio: '16/9',
+      position: 'relative'
+    },
+    featuredSection: {
+      margin: '0 20px 16px',
+      padding: '16px',
+      background: '#1a1a1a',
+      borderRadius: '12px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    wishButton: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '8px 16px',
       background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+      borderRadius: '20px',
+      fontSize: '14px',
+      fontWeight: '700',
+      color: '#fff'
+    },
+    pityCounter: {
+      margin: '0 20px 16px',
+      padding: '12px',
+      background: '#1a1a1a',
+      borderRadius: '12px',
+      textAlign: 'center',
+      fontSize: '14px',
+      fontWeight: '600',
+      color: '#9ca3af'
+    },
+    pullButtonsNew: {
+      margin: '0 20px 20px',
+      display: 'flex',
+      gap: '12px'
+    },
+    pullButtonNew: {
+      flex: 1,
+      padding: '16px',
+      background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+      borderRadius: '12px',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    legendaryPreview: {
+      margin: '0 20px',
+      padding: '16px',
+      background: '#1a1a1a',
+      borderRadius: '12px'
+    },
+    wishModal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.9)',
+      zIndex: 2000,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '64px',
-      position: 'relative'
-    },
-    bannerInfo: {
       padding: '20px'
     },
-    bannerTitle: {
-      fontSize: '24px',
-      fontWeight: '700',
-      marginBottom: '12px',
-      textAlign: 'center'
+    wishModalContent: {
+      background: '#1a1a1a',
+      borderRadius: '16px',
+      padding: '24px',
+      maxWidth: '480px',
+      width: '100%',
+      maxHeight: '80vh',
+      overflowY: 'auto'
     },
-    pityInfo: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '12px',
-      marginTop: '16px'
-    },
-    pityCard: {
-      background: 'rgba(0, 0, 0, 0.3)',
-      padding: '12px',
-      borderRadius: '12px',
-      textAlign: 'center'
-    },
-    pityLabel: {
-      fontSize: '11px',
-      color: '#9ca3af',
-      marginBottom: '4px'
-    },
-    pityValue: {
-      fontSize: '20px',
-      fontWeight: '700'
-    },
-    rewardsSection: {
-      padding: '20px',
-      background: '#0a0a0a'
-    },
-    sectionTitle: {
-      fontSize: '16px',
-      fontWeight: '700',
-      marginBottom: '16px',
-      textTransform: 'uppercase',
-      fontStyle: 'italic'
-    },
-    progressBar: {
-      background: '#2a2a2a',
-      borderRadius: '12px',
-      padding: '16px',
-      marginBottom: '16px'
-    },
-    progressLabel: {
+    wishModalHeader: {
       display: 'flex',
       justifyContent: 'space-between',
-      fontSize: '13px',
-      marginBottom: '8px',
-      fontStyle: 'italic'
+      alignItems: 'center',
+      marginBottom: '12px'
     },
-    progressBarFill: {
-      height: '8px',
-      background: '#2a2a2a',
-      borderRadius: '4px',
-      overflow: 'hidden'
+    wishItemsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gap: '12px'
     },
-    progressFill: {
-      height: '100%',
-      background: 'linear-gradient(90deg, #3b82f6 0%, #7c3aed 100%)',
-      transition: 'width 0.3s ease'
+    wishItem: {
+      background: '#0a0a0a',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      padding: 0,
+      cursor: 'pointer',
+      transition: 'transform 0.2s'
     },
     itemsGrid: {
       display: 'grid',
@@ -200,41 +262,6 @@ const Gacha = ({ user, refreshUser }) => {
       textAlign: 'center',
       fontSize: '8px',
       textShadow: '0 1px 3px rgba(0,0,0,0.8)'
-    },
-    pullButtons: {
-      position: 'fixed',
-      bottom: '80px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 'calc(100% - 80px)',
-      maxWidth: '360px',
-      padding: '0',
-      display: 'flex',
-      gap: '8px'
-    },
-    pullButton: {
-      flex: 1,
-      padding: '10px 8px',
-      borderRadius: '10px',
-      fontSize: '12px',
-      fontWeight: '700',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '2px'
-    },
-    pullButtonSingle: {
-      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-    },
-    pullButtonMulti: {
-      background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'
-    },
-    pullButtonCost: {
-      fontSize: '10px',
-      opacity: 0.9,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '2px'
     },
     resultsModal: {
       position: 'fixed',
@@ -306,6 +333,7 @@ const Gacha = ({ user, refreshUser }) => {
 
   return (
     <div style={styles.container}>
+      {/* Banner Image */}
       <div style={styles.bannerCard}>
         <div style={styles.bannerImage}>
           <img
@@ -313,48 +341,69 @@ const Gacha = ({ user, refreshUser }) => {
             alt="Ghost Stories Banner"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
-          <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(0,0,0,0.7)', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '700' }}>
-            Swappable
-          </div>
-        </div>
-        <div style={styles.bannerInfo}>
-          <div style={styles.bannerTitle}>{banner.name || 'Coven Call'}</div>
-
-          {gachaState && (
-            <div style={styles.pityInfo}>
-              <div style={styles.pityCard}>
-                <div style={styles.pityLabel}>5★ Pity</div>
-                <div style={styles.pityValue}>{gachaState.pulls_since_5star}/90</div>
-              </div>
-              <div style={styles.pityCard}>
-                <div style={styles.pityLabel}>4★ Pity</div>
-                <div style={styles.pityValue}>{gachaState.pulls_since_4star}/10</div>
-              </div>
-              <div style={{...styles.pityCard, gridColumn: '1 / -1'}}>
-                <div style={styles.pityLabel}>Next 5★</div>
-                <div style={{...styles.pityValue, fontSize: '16px', color: gachaState.guaranteed_featured ? '#f59e0b' : '#9ca3af'}}>
-                  {gachaState.guaranteed_featured ? 'Guaranteed Featured' : '50/50'}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      <div style={styles.rewardsSection}>
-        <div style={styles.progressBar}>
-          <div style={styles.progressLabel}>
-            <span style={styles.sectionTitle}>Completion Reward</span>
-            <span>17 / 46 Items</span>
+      {/* Featured Item Display */}
+      {selectedFeatured && (
+        <div style={styles.featuredSection}>
+          <div style={{ fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: '#f59e0b' }}>★</span>
+            <span style={{ fontWeight: '600' }}>Featured: {selectedFeatured.name}</span>
           </div>
-          <div style={styles.progressBarFill}>
-            <div style={{...styles.progressFill, width: '37%'}} />
-          </div>
+          <button
+            style={styles.wishButton}
+            onClick={() => setShowWishModal(true)}
+          >
+            <span style={{ fontSize: '20px' }}>❤️</span>
+            <span>Wish</span>
+          </button>
         </div>
+      )}
 
-        <div style={styles.sectionTitle}>Legendary guaranteed within 60 Spins</div>
+      {/* Pity Counter */}
+      {gachaState && (
+        <div style={styles.pityCounter}>
+          {90 - gachaState.pulls_since_5star} until guaranteed Legendary
+        </div>
+      )}
+
+      {/* Pull Buttons */}
+      <div style={styles.pullButtonsNew}>
+        <button
+          style={styles.pullButtonNew}
+          onClick={() => performPull(1)}
+          disabled={pulling}
+        >
+          <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>Open x1</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
+            <span>🎟️</span>
+            <span>1 Spin Token</span>
+          </div>
+        </button>
+        <button
+          style={styles.pullButtonNew}
+          onClick={() => performPull(10)}
+          disabled={pulling}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '16px', fontWeight: '700' }}>Open x11</span>
+            <span style={{ background: '#10b981', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700' }}>+1 FREE</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px' }}>
+            <span>🎟️</span>
+            <span>10 Spin Tokens</span>
+          </div>
+        </button>
+      </div>
+
+      {/* Legendary Items Preview */}
+      <div style={styles.legendaryPreview}>
+        <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '12px', textAlign: 'center' }}>
+          Legendary Items ({legendaryItems.length})
+        </div>
         <div style={styles.itemsGrid}>
-          {legendaryItems.slice(0, 8).map((item, i) => (
+          {legendaryItems.map((item, i) => (
             <div key={i} style={{...styles.itemCard, background: getRarityColor('legendary')}}>
               <div style={styles.itemImage}>
                 <span>✨</span>
@@ -365,32 +414,47 @@ const Gacha = ({ user, refreshUser }) => {
         </div>
       </div>
 
-      <div style={styles.pullButtons}>
-        <button
-          style={{...styles.pullButton, ...styles.pullButtonSingle}}
-          onClick={() => performPull(1)}
-          disabled={pulling}
-        >
-          <span>Spin x1</span>
-          <span style={styles.pullButtonCost}>
-            <img src="/spin-token.png" alt="Spin Token" style={{width: '12px', height: '12px'}} />
-            1
-          </span>
-        </button>
-        <button
-          style={{...styles.pullButton, ...styles.pullButtonMulti}}
-          onClick={() => performPull(10)}
-          disabled={pulling}
-        >
-          <span>Spin x10</span>
-          <span style={styles.pullButtonCost}>
-            <img src="/spin-token.png" alt="Spin Token" style={{width: '12px', height: '12px'}} />
-            10
-          </span>
-          <span style={{fontSize: '9px', opacity: 0.8}}>Guaranteed Epic</span>
-        </button>
-      </div>
+      {/* Wish Modal */}
+      {showWishModal && (
+        <div style={styles.wishModal}>
+          <div style={styles.wishModalContent}>
+            <div style={styles.wishModalHeader}>
+              <div style={{ fontSize: '20px', fontWeight: '700' }}>Select Featured Item</div>
+              <button
+                style={{ background: 'none', fontSize: '24px', padding: '0' }}
+                onClick={() => setShowWishModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '20px' }}>
+              Your selected item will have a 50% chance when you win a 5★
+            </div>
+            <div style={styles.wishItemsGrid}>
+              {legendaryItems.map((item, i) => (
+                <button
+                  key={i}
+                  style={{
+                    ...styles.wishItem,
+                    border: selectedFeatured?.item_id === item.item_id ? '3px solid #f59e0b' : '2px solid #2a2a2a'
+                  }}
+                  onClick={() => setFeaturedItem(item)}
+                >
+                  <div style={{...styles.itemImage, background: getRarityColor('legendary')}}>
+                    <span>✨</span>
+                  </div>
+                  <div style={{ padding: '8px', fontSize: '12px', fontWeight: '600', textAlign: 'center' }}>
+                    {item.name}
+                  </div>
+                  <div style={styles.itemStars}>{getRarityStars('legendary')}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Results Modal */}
       {results && (
         <div style={styles.resultsModal}>
           <div style={styles.resultsGrid}>
