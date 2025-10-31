@@ -512,7 +512,7 @@ const Shop = ({ user, refreshUser }) => {
             <div
               key={item.id}
               style={styles.itemCard}
-              onClick={() => canBuy && handlePurchase(item)}
+              onClick={() => openPurchaseModal(item)}
             >
               <div style={{
                 ...styles.itemImage,

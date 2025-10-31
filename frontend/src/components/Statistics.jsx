@@ -223,16 +223,48 @@ const Statistics = ({ user }) => {
               <div style={styles.section}>
                 <div style={styles.sectionTitle}>Gacha Pulls</div>
                 <div style={styles.statRow}>
-                  <span style={styles.statLabel}>Total Pulls</span>
-                  <span style={styles.statValue}>{stats.gachaPulls.total}</span>
-                </div>
-                <div style={styles.statRow}>
-                  <span style={styles.statLabel}>5★ Pulled</span>
+                  <span style={styles.statLabel}>
+                    <span style={{...styles.rarityBadge, background: getRarityColor('legendary')}}>
+                      LEGEND
+                    </span>
+                  </span>
                   <span style={styles.statValue}>{stats.gachaPulls.legendary}</span>
                 </div>
                 <div style={styles.statRow}>
-                  <span style={styles.statLabel}>4★ Pulled</span>
+                  <span style={styles.statLabel}>
+                    <span style={{...styles.rarityBadge, background: getRarityColor('epic')}}>
+                      EPIC
+                    </span>
+                  </span>
                   <span style={styles.statValue}>{stats.gachaPulls.epic}</span>
+                </div>
+                <div style={styles.statRow}>
+                  <span style={styles.statLabel}>
+                    <span style={{...styles.rarityBadge, background: getRarityColor('rare')}}>
+                      RARE
+                    </span>
+                  </span>
+                  <span style={styles.statValue}>{stats.gachaPulls.rare}</span>
+                </div>
+                <div style={styles.statRow}>
+                  <span style={styles.statLabel}>
+                    <span style={{...styles.rarityBadge, background: getRarityColor('uncommon')}}>
+                      UNCOMM
+                    </span>
+                  </span>
+                  <span style={styles.statValue}>{stats.gachaPulls.uncommon}</span>
+                </div>
+                <div style={styles.statRow}>
+                  <span style={styles.statLabel}>
+                    <span style={{...styles.rarityBadge, background: getRarityColor('common')}}>
+                      COMMON
+                    </span>
+                  </span>
+                  <span style={styles.statValue}>{stats.gachaPulls.common}</span>
+                </div>
+                <div style={{...styles.statRow, borderTop: '1px solid #2a2a2a', marginTop: '8px', paddingTop: '12px'}}>
+                  <span style={styles.statLabel}>Total Pulls</span>
+                  <span style={styles.statValue}>{stats.totalGachaPulls}</span>
                 </div>
               </div>
 

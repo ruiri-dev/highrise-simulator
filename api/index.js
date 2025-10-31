@@ -708,15 +708,27 @@ app.get('/api/stats/:userId', async (req, res) => {
       WHERE user_id = ?
     `, [userId]);
 
-    // Get gacha pull statistics
-    const gachaPullsResult = await dbGet(`
-      SELECT
-        COUNT(*) as total,
-        SUM(CASE WHEN rarity = 'legendary' THEN 1 ELSE 0 END) as legendary,
-        SUM(CASE WHEN rarity = 'epic' THEN 1 ELSE 0 END) as epic
+    // Get gacha pull statistics by rarity
+    const gachaPullsByRarity = await dbAll(`
+      SELECT rarity, COUNT(*) as count
       FROM gacha_pulls
       WHERE user_id = ?
+      GROUP BY rarity
     `, [userId]);
+
+    const gachaPulls = {
+      legendary: 0,
+      epic: 0,
+      rare: 0,
+      uncommon: 0,
+      common: 0
+    };
+
+    gachaPullsByRarity.forEach(row => {
+      gachaPulls[row.rarity] = row.count;
+    });
+
+    const totalGachaPulls = Object.values(gachaPulls).reduce((sum, count) => sum + count, 0);
 
     res.json({
       tokensEarned: {
@@ -726,11 +738,8 @@ app.get('/api/stats/:userId', async (req, res) => {
       disenchanted,
       totalDisenchanted,
       currentInventory: inventoryResult.count,
-      gachaPulls: {
-        total: gachaPullsResult.total || 0,
-        legendary: gachaPullsResult.legendary || 0,
-        epic: gachaPullsResult.epic || 0
-      }
+      gachaPulls,
+      totalGachaPulls
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
