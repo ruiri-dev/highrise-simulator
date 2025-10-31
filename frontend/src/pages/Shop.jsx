@@ -439,18 +439,6 @@ const Shop = ({ user, refreshUser }) => {
                       </>
                     )}
 
-                    {item.global_stock_limit && (
-                      <div style={{
-                        ...styles.limitBadge,
-                        background: 'rgba(251, 191, 36, 0.95)',
-                        color: '#000',
-                        fontWeight: '700',
-                        fontSize: '10px'
-                      }}>
-                        {item.global_stock_limit - item.global_stock_purchased} left globally
-                      </div>
-                    )}
-
                     {item.stock_limit && !item.global_stock_limit && (
                       <div style={styles.limitBadge}>
                         {purchased}/{item.stock_limit}
@@ -544,18 +532,6 @@ const Shop = ({ user, refreshUser }) => {
                     {item.item_type === 'background' && '🖼️'}
                     {item.item_type === 'epic_item' && '✨'}
                   </>
-                )}
-
-                {item.global_stock_limit && (
-                  <div style={{
-                    ...styles.limitBadge,
-                    background: 'rgba(251, 191, 36, 0.95)',
-                    color: '#000',
-                    fontWeight: '700',
-                    fontSize: '10px'
-                  }}>
-                    {item.global_stock_limit - item.global_stock_purchased} left globally
-                  </div>
                 )}
 
                 {item.stock_limit && !item.global_stock_limit && (
