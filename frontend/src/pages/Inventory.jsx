@@ -107,7 +107,7 @@ const Inventory = ({ user, refreshUser }) => {
 
       if (response.ok) {
         setShowConfirmModal(false);
-        alert(`Earned ${result.goldEarned} gold and ${result.silverEarned} silver tokens!`);
+        alert(`Earned ${result.goldEarned} Gold Swap Tokens and ${result.silverEarned} Silver Swap Tokens!`);
         setSelectedItems(new Set());
         setDisenchantMode(false);
         await refreshUser();
@@ -142,7 +142,7 @@ const Inventory = ({ user, refreshUser }) => {
         if (result.itemsDisenchanted === 0) {
           alert('No duplicates found!');
         } else {
-          alert(`Disenchanted ${result.itemsDisenchanted} items! Earned ${result.goldEarned} gold and ${result.silverEarned} silver tokens!`);
+          alert(`Disenchanted ${result.itemsDisenchanted} items! Earned ${result.goldEarned} Gold Swap Tokens and ${result.silverEarned} Silver Swap Tokens!`);
         }
         await refreshUser();
         await loadInventory();
@@ -189,7 +189,7 @@ const Inventory = ({ user, refreshUser }) => {
 
       if (response.ok) {
         setShowConfirmModal(false);
-        alert(`Earned ${result.goldEarned} gold and ${result.silverEarned} silver tokens!`);
+        alert(`Earned ${result.goldEarned} Gold Swap Tokens and ${result.silverEarned} Silver Swap Tokens!`);
         await refreshUser();
         await loadInventory();
       } else {
@@ -474,7 +474,7 @@ const Inventory = ({ user, refreshUser }) => {
                           <span style={{ fontSize: '16px', fontWeight: '700', color: '#f59e0b' }}>
                             +{rewards.gold}
                           </span>
-                          <span style={{ fontSize: '13px', color: '#9ca3af' }}>Gold</span>
+                          <span style={{ fontSize: '13px', color: '#9ca3af' }}>Gold Swap Tokens</span>
                         </div>
                       )}
                       {rewards.silver > 0 && (
@@ -483,7 +483,7 @@ const Inventory = ({ user, refreshUser }) => {
                           <span style={{ fontSize: '16px', fontWeight: '700', color: '#9ca3af' }}>
                             +{rewards.silver}
                           </span>
-                          <span style={{ fontSize: '13px', color: '#6b7280' }}>Silver</span>
+                          <span style={{ fontSize: '13px', color: '#6b7280' }}>Silver Swap Tokens</span>
                         </div>
                       )}
                     </>

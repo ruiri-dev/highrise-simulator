@@ -54,8 +54,9 @@ const Shop = ({ user, refreshUser }) => {
 
     // Check if user has enough tokens
     const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
+    const tokenName = activeTab === 'gold' ? 'Gold Swap Tokens' : 'Silver Swap Tokens';
     if (user[tokenField] < selectedItem.price) {
-      setPurchaseError(`Not enough ${activeTab} swap tokens! You need ${selectedItem.price} but only have ${user[tokenField]}.`);
+      setPurchaseError(`Not enough ${tokenName}! You need ${selectedItem.price} but only have ${user[tokenField]}.`);
       return;
     }
 
