@@ -37,60 +37,50 @@ async function seed() {
 
   // Create items from actual Highrise catalog with real image URLs
   const items = [
-    // Legendary items from Ghost Stories gacha
-    { name: 'Phantom Mist', type: 'aura', rarity: 'legendary', description: 'Ethereal phantom mist aura', image_url: 'https://cdn.highrisegame.com/avatar/aura-n_ghoststories2025set1ghostbook.png' },
-    { name: 'Skeletal Terror', type: 'shirt', rarity: 'legendary', description: 'Skeleton sweater', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set3skeletonsweater.png' },
-    { name: 'Poltergeist Pistol', type: 'handbag', rarity: 'legendary', description: 'Haunted pistol accessory', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_ghoststories2025set1scaryclaws.png' },
-    { name: 'Boo\'d Up', type: 'bag', rarity: 'legendary', description: 'Ghost companion', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_ghoststories2025set4whiteghostsuit.png' },
-    { name: 'Chill To The Bone', type: 'shirt', rarity: 'legendary', description: 'Skeleton torso', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set3skeletonsweater.png' },
-    { name: 'Boo Booties', type: 'shoes', rarity: 'legendary', description: 'Ghost boots', image_url: 'https://cdn.highrisegame.com/avatar/shoes-n_ghoststories2025set5ghostbooties.png' },
+    // Legendary items from Neonwitch gacha
+    { name: 'Plasma Whispers', type: 'aura', rarity: 'legendary', description: 'Electric plasma dragon aura', image_url: 'https://cdn.highrisegame.com/avatar/aura-n_neonwitch2025set1smoke.png' },
+    { name: 'Darkwave Elegy', type: 'dress', rarity: 'legendary', description: 'Black neon dress', image_url: 'https://cdn.highrisegame.com/avatar/dress-n_neonwitch2025set2blackneondress.png' },
+    { name: 'Witchfire Waves', type: 'hair', rarity: 'legendary', description: 'Purple neon hair', image_url: 'https://cdn.highrisegame.com/avatar/hair_front-n_neonwitch2025set2neonhair.png' },
+    { name: 'Voltage Inferno', type: 'bag', rarity: 'legendary', description: 'Neon fire skull', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_neonwitch2025set2neonfiressku ll.png' },
+    { name: 'Dripping Sorcery Cascade', type: 'hat', rarity: 'legendary', description: 'Melting witch hat', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_neonwitch2025set1witchmelting.png' },
+    { name: 'Witch\'s Voltage Staff', type: 'handbag', rarity: 'legendary', description: 'Electric staff', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_neonwitch2025set1staff.png' },
 
     // Keep some original legendary items for shops
     { name: 'Madison Charm Hair', type: 'hair', rarity: 'legendary', description: 'Elegant styled hair', image_url: 'https://cdn.highrisegame.com/avatar/hair_front-n_hrideas2025nabqthamadisoncharm.png' },
     { name: 'Beautiful Blowout', type: 'hair', rarity: 'legendary', description: 'Voluminous blowout style', image_url: 'https://cdn.highrisegame.com/avatar/hair_front-n_hrideas2025beautifulllblowout.png' },
 
-    // Epic items (Ghost Stories Set)
-    { name: 'Tide Cursed Tresses', type: 'hair', rarity: 'epic', description: 'Oceanic cursed hair', image_url: 'https://cdn.highrisegame.com/avatar/hair_front-n_ghoststories2025set6hair.png' },
-    { name: 'Wailing Tide Eyes', type: 'eye', rarity: 'epic', description: 'Feminine oceanic eyes', image_url: 'https://cdn.highrisegame.com/avatar/eye-n_ghoststories2025set6femeyes.png' },
-    { name: 'Purrpuff', type: 'hat', rarity: 'epic', description: 'Smoke cat companion', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set4smokecat.png' },
-    { name: 'Muffled Boo', type: 'mouth', rarity: 'epic', description: 'Sealed mouth', image_url: 'https://cdn.highrisegame.com/avatar/mouth-n_ghoststories2025set5boo.png' },
-    { name: 'Sealed In Sorrow', type: 'eye', rarity: 'epic', description: 'Bandaged eyes', image_url: 'https://cdn.highrisegame.com/avatar/eye-n_ghoststories2025set3bigscaredeyes.png' },
-    { name: 'Levitating Tome Of Curses', type: 'handbag', rarity: 'epic', description: 'Floating spell book', image_url: 'https://cdn.highrisegame.com/avatar/aura-n_ghoststories2025set1ghostbook.png' },
-    { name: 'Gothic Doll Dress', type: 'dress', rarity: 'epic', description: 'White gothic dress', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set4whitedress.png' },
-    { name: 'The Forgotten Bride', type: 'dress', rarity: 'epic', description: 'Tattered wedding dress', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set1ghostdress.png' },
-    { name: 'The Guiding Flame', type: 'accessory', rarity: 'epic', description: 'Candles on posed arm', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_ghoststories2025set2candlesposedarm.png' },
-    { name: 'Phantom Purr Blanket', type: 'bag', rarity: 'epic', description: 'Ghost cat blanket', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_ghoststories2025set7blanket.png' },
-    { name: 'Last Breath Below', type: 'hat', rarity: 'epic', description: 'Underwater bubbles', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set6bubbles.png' },
-    { name: 'Coral Mourning Top', type: 'shirt', rarity: 'epic', description: 'Seaweed bra top', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set6seaweedbra.png' },
-    { name: 'Sea Of Echoes', type: 'pants', rarity: 'epic', description: 'Ghostly sea legs', image_url: 'https://cdn.highrisegame.com/avatar/pants-n_ghoststories2025set6ghostlylegs.png' },
-    { name: 'Drowned Enchantress', type: 'dress', rarity: 'epic', description: 'Seaweed dress', image_url: 'https://cdn.highrisegame.com/avatar/dress-n_ghoststories2025set6seaweeddress.png' },
+    // Epic items (Neonwitch Set)
+    { name: 'Electric Enchant Glare', type: 'eye', rarity: 'epic', description: 'Electric neon eyes', image_url: 'https://cdn.highrisegame.com/avatar/eye-n_neonwitch2025set1glare.png' },
+    { name: 'Glimmer Cursed Elbow', type: 'handbag', rarity: 'epic', description: 'Glowing cursed elbow', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_neonwitch2025set1potion.png' },
+    { name: 'Witch\'s Plasma Top', type: 'shirt', rarity: 'epic', description: 'Plasma top with fur', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1fluffsleeves.png' },
+    { name: 'Witch\'s Plasma Trail', type: 'skirt', rarity: 'epic', description: 'Flowing plasma trail', image_url: 'https://cdn.highrisegame.com/avatar/skirt-n_neonwitch2025set2glitterskirt.png' },
+    { name: 'Plasma Flow Cape', type: 'necklace', rarity: 'epic', description: 'Electric cape', image_url: 'https://cdn.highrisegame.com/avatar/necklace-n_neonwitch2025set2neoncape.png' },
+    { name: 'Witch\'s Venom Mask', type: 'hat', rarity: 'epic', description: 'Gas mask accessory', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_neonwitch2025set2gasmask.png' },
+    { name: 'Glitter Top', type: 'shirt', rarity: 'epic', description: 'Glittery neon top', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set2glittertop.png' },
+    { name: 'Glitter Skirt', type: 'skirt', rarity: 'epic', description: 'Sparkly neon skirt', image_url: 'https://cdn.highrisegame.com/avatar/skirt-n_neonwitch2025set2glitterskirt.png' },
+    { name: 'Neon Corset', type: 'shirt', rarity: 'epic', description: 'Neon skeleton corset', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set2neoncorset.png' },
+    { name: 'Melting Shirt', type: 'shirt', rarity: 'epic', description: 'Dripping neon shirt', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1melting.png' },
+    { name: 'Skeleton Shirt', type: 'shirt', rarity: 'epic', description: 'Neon skeleton top', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1skeleton.png' },
+    { name: 'Fluff Sleeves', type: 'shirt', rarity: 'epic', description: 'Fluffy purple sleeves', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1fluffsleeves.png' },
+    { name: 'Fluff Skirt', type: 'skirt', rarity: 'epic', description: 'Fluffy purple skirt', image_url: 'https://cdn.highrisegame.com/avatar/skirt-n_neonwitch2025set1fluffskirt.png' },
+    { name: 'Neon Cape', type: 'necklace', rarity: 'epic', description: 'Electric neon cape', image_url: 'https://cdn.highrisegame.com/avatar/necklace-n_neonwitch2025set2neoncape.png' },
 
-    // Rare items (Ghost Stories Set)
-    { name: 'Gloom\'s Glare', type: 'hair', rarity: 'rare', description: 'Dark shadowy hair', image_url: 'https://cdn.highrisegame.com/avatar/hair_front-n_ghoststories2025set4messyhair.png' },
-    { name: 'The Last Glance', type: 'eye', rarity: 'rare', description: 'Sad glowing eyes', image_url: 'https://cdn.highrisegame.com/avatar/eye-n_ghoststories2025set5shadow.png' },
-    { name: 'Shadowed Lips', type: 'mouth', rarity: 'rare', description: 'Black mid pout', image_url: 'https://cdn.highrisegame.com/avatar/mouth-n_ghoststories2025set2blackmidpout.png' },
-    { name: 'Glow Of The Deep', type: 'freckle', rarity: 'rare', description: 'Bioluminescent face glow', image_url: 'https://cdn.highrisegame.com/avatar/freckle-n_ghoststories2025set6skinglowface.png' },
-    { name: 'Haunted Glow', type: 'freckle', rarity: 'rare', description: 'Ghostly face glow', image_url: 'https://cdn.highrisegame.com/avatar/freckle-n_ghoststories2025set1hauntedface.png' },
-    { name: 'Boo Kitty Buddies', type: 'hat', rarity: 'rare', description: 'Tiny ghost kittens', image_url: 'https://cdn.highrisegame.com/avatar/aura-n_ghoststories2025set7tinykittens.png' },
-    { name: 'Silly Spirit', type: 'hat', rarity: 'rare', description: 'Cute ghost companion', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set4sillyghost.png' },
-    { name: 'Anchor Of Regret', type: 'bag', rarity: 'rare', description: 'Heavy anchor accessory', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_ghoststories2025set6anchor.png' },
-    { name: 'Séance Blouse', type: 'shirt', rarity: 'rare', description: 'Ethereal sleeve shirt', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set2sleeveshirt.png' },
-    { name: 'Widow\'s Blouse', type: 'shirt', rarity: 'rare', description: 'Puff sleeve mourning shirt', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_ghoststories2025set2puffsleeveshirt.png' },
-    { name: 'Haunted Pleats', type: 'skirt', rarity: 'rare', description: 'Dark pleated skirt', image_url: 'https://cdn.highrisegame.com/avatar/skirt-n_ghoststories2025set3opacityskirt.png' },
-    { name: 'Wraith Drape', type: 'skirt', rarity: 'rare', description: 'Ghostly skirt', image_url: 'https://cdn.highrisegame.com/avatar/skirt-n_ghoststories2025set2skirt.png' },
-    { name: 'Grave Dandy Shorts', type: 'pants', rarity: 'rare', description: 'Black shorts with suspenders', image_url: 'https://cdn.highrisegame.com/avatar/pants-n_ghoststories2025set2blackshortssuspenders.png' },
-    { name: 'Gothic Benediction', type: 'bag', rarity: 'rare', description: 'Cross accessories', image_url: 'https://cdn.highrisegame.com/avatar/bag-n_ghoststories2025set4neckr ibbons.png' },
-    { name: 'Midnight Ministry', type: 'handbag', rarity: 'rare', description: 'Cross claw hands', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_ghoststories2025set1scaryclaws.png' },
-    { name: 'The Eternal Bride', type: 'hat', rarity: 'rare', description: 'Wedding veil', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set2veil.png' },
-    { name: 'Holy Mourner', type: 'hat', rarity: 'rare', description: 'Angelic crown', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set4cutecrown.png' },
-    { name: 'Spirit Starfish', type: 'hat', rarity: 'rare', description: 'Ghostly starfish', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set6starfish.png' },
-    { name: 'Skelly Meowrmi Night Cap', type: 'hat', rarity: 'rare', description: 'Skeleton cat hat', image_url: 'https://cdn.highrisegame.com/avatar/hat-n_ghoststories2025set5skellysushicat.png' },
-    { name: 'Glisten Of The Deep', type: 'tattoo', rarity: 'rare', description: 'Underwater skin glow', image_url: 'https://cdn.highrisegame.com/avatar/tattoo-n_ghoststories2025set6skinglow.png' },
-    { name: 'Wraith Claws', type: 'handbag', rarity: 'rare', description: 'Ghostly claw hands', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_ghoststories2025set1scaryclaws.png' },
-    { name: 'Bootiful Socks', type: 'sock', rarity: 'rare', description: 'Ghost socks', image_url: 'https://cdn.highrisegame.com/avatar/sock-n_ghoststories2025set1ghostsocks.png' },
-    { name: 'Phantom Kicks', type: 'shoes', rarity: 'rare', description: 'Ghost sneakers', image_url: 'https://cdn.highrisegame.com/avatar/shoes-n_ghoststories2025set1ghostsneakers.png' },
-    { name: 'Séance Boots', type: 'shoes', rarity: 'rare', description: 'Off-white spiritual boots', image_url: 'https://cdn.highrisegame.com/avatar/shoes-n_ghoststories2025set2offwhiteboots.png' },
-    { name: 'Dark Dream Heels', type: 'shoes', rarity: 'rare', description: 'Purple heels', image_url: 'https://cdn.highrisegame.com/avatar/shoes-n_ghoststories2025set7purpleheels.png' },
+    // Rare items (Neonwitch Set)
+    { name: 'Plasma Drip Top', type: 'shirt', rarity: 'rare', description: 'Dripping plasma top', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1melting.png' },
+    { name: 'Luminous Remains Shirt', type: 'shirt', rarity: 'rare', description: 'Neon skeleton shirt', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1skeleton.png' },
+    { name: 'Arcane Luster Top', type: 'shirt', rarity: 'rare', description: 'Purple fringe top', image_url: 'https://cdn.highrisegame.com/avatar/shirt-n_neonwitch2025set1fluffsleeves.png' },
+    { name: 'Arcane Luster Skirt', type: 'skirt', rarity: 'rare', description: 'Purple fringe skirt', image_url: 'https://cdn.highrisegame.com/avatar/skirt-n_neonwitch2025set1fluffskirt.png' },
+    { name: 'Luminous Remains Pants', type: 'pants', rarity: 'rare', description: 'Neon skeleton pants', image_url: 'https://cdn.highrisegame.com/avatar/pants-n_neonwitch2025set2neonskeletonpants.png' },
+    { name: 'Voltage Enchantress Neck', type: 'necklace', rarity: 'rare', description: 'Electric neck accessory', image_url: 'https://cdn.highrisegame.com/avatar/necklace-n_neonwitch2025set2neoncape.png' },
+    { name: 'Sorcery Base', type: 'sock', rarity: 'rare', description: 'Black base socks', image_url: 'https://cdn.highrisegame.com/avatar/sock-n_neonwitch2025set1stockings.png' },
+    { name: 'Voltage Enchantress Boots', type: 'shoes', rarity: 'rare', description: 'Neon platform boots', image_url: 'https://cdn.highrisegame.com/avatar/shoes-n_neonwitch2025set1spikeboots.png' },
+    { name: 'Plasma Drip Thighs', type: 'pants', rarity: 'rare', description: 'Dripping thigh highs', image_url: 'https://cdn.highrisegame.com/avatar/pants-n_neonwitch2025set1panties.png' },
+    { name: 'Voltage Enchantress Thighs', type: 'sock', rarity: 'rare', description: 'Electric thigh highs', image_url: 'https://cdn.highrisegame.com/avatar/sock-n_neonwitch2025set1stockings.png' },
+    { name: 'Neon Gloves', type: 'gloves', rarity: 'rare', description: 'Electric neon gloves', image_url: 'https://cdn.highrisegame.com/avatar/gloves-n_neonwitch2025set1nails.png' },
+    { name: 'Potion Handbag', type: 'handbag', rarity: 'rare', description: 'Magic potion accessory', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_neonwitch2025set1potion.png' },
+    { name: 'Witch Glare', type: 'eye', rarity: 'rare', description: 'Intense witch eyes', image_url: 'https://cdn.highrisegame.com/avatar/eye-n_neonwitch2025set1glare.png' },
+    { name: 'Neon Smoke', type: 'aura', rarity: 'rare', description: 'Purple neon smoke', image_url: 'https://cdn.highrisegame.com/avatar/aura-n_neonwitch2025set1smoke.png' },
+    { name: 'Witch Staff', type: 'handbag', rarity: 'rare', description: 'Magical witch staff', image_url: 'https://cdn.highrisegame.com/avatar/handbag-n_neonwitch2025set1staff.png' },
 
     // Backgrounds - using the potion shop image provided
     { name: 'Potion Shop Background', type: 'background', rarity: 'legendary', description: 'Mystical potion shop interior with neon heart', image_url: '/potion-shop-bg.png' },
@@ -116,9 +106,9 @@ async function seed() {
 
     // Regular items
     { item_name: 'Potion Shop Background', price: 1000, item_type: 'background' },
-    { item_name: 'Gothic Doll Dress', price: 70, item_type: 'epic_item' },
-    { item_name: 'The Guiding Flame', price: 70, item_type: 'epic_item' },
-    { item_name: 'Purrpuff', price: 70, item_type: 'epic_item' },
+    { item_name: 'Glitter Top', price: 70, item_type: 'epic_item' },
+    { item_name: 'Neon Corset', price: 70, item_type: 'epic_item' },
+    { item_name: 'Witch\'s Venom Mask', price: 70, item_type: 'epic_item' },
     { item_id: null, price: 5, item_type: 'spin_token' },
     { item_id: null, price: 5, item_type: 'boost_token' },
     { item_id: null, price: 5, item_type: 'live_token' }
@@ -138,12 +128,12 @@ async function seed() {
   const silverShopItems = [
     { item_id: null, price: 75, item_type: 'spin_token', stock_limit: 5, is_featured: true },
     { item_id: null, price: 30, item_type: 'bubble_token', stock_limit: null, quantity: 500 },
-    { item_name: 'Séance Boots', price: 75, item_type: 'rare_item' },
-    { item_name: 'Grave Dandy Shorts', price: 75, item_type: 'rare_item' },
-    { item_name: 'Wraith Drape', price: 75, item_type: 'rare_item' },
-    { item_name: 'Haunted Pleats', price: 75, item_type: 'rare_item' },
-    { item_name: 'Holy Mourner', price: 75, item_type: 'rare_item' },
-    { item_name: 'The Eternal Bride', price: 75, item_type: 'rare_item' }
+    { item_name: 'Voltage Enchantress Boots', price: 75, item_type: 'rare_item' },
+    { item_name: 'Luminous Remains Pants', price: 75, item_type: 'rare_item' },
+    { item_name: 'Arcane Luster Skirt', price: 75, item_type: 'rare_item' },
+    { item_name: 'Arcane Luster Top', price: 75, item_type: 'rare_item' },
+    { item_name: 'Neon Gloves', price: 75, item_type: 'rare_item' },
+    { item_name: 'Potion Handbag', price: 75, item_type: 'rare_item' }
   ];
 
   for (const shopItem of silverShopItems) {
@@ -156,10 +146,10 @@ async function seed() {
 
   console.log(`✅ Created ${silverShopItems.length} silver shop items`);
 
-  // Create gacha banner (Ghost Stories themed)
+  // Create gacha banner (Neonwitch themed)
   const bannerResult = await dbRun(
     'INSERT INTO gacha_banners (name, featured_item_id, is_active) VALUES (?, ?, ?)',
-    ['Ghost Stories', itemIds['Phantom Mist'], 1]
+    ['Prism Hex', itemIds['Plasma Whispers'], 1]
   );
   const bannerId = bannerResult.id;
 
@@ -167,23 +157,22 @@ async function seed() {
 
   // Add items to banner
   const legendaryBannerItems = [
-    'Phantom Mist', 'Skeletal Terror', 'Poltergeist Pistol', 'Boo\'d Up', 'Chill To The Bone', 'Boo Booties'
+    'Plasma Whispers', 'Darkwave Elegy', 'Witchfire Waves', 'Voltage Inferno',
+    'Dripping Sorcery Cascade', 'Witch\'s Voltage Staff'
   ];
 
   const epicBannerItems = [
-    'Tide Cursed Tresses', 'Wailing Tide Eyes', 'Purrpuff', 'Muffled Boo',
-    'Sealed In Sorrow', 'Levitating Tome Of Curses', 'Gothic Doll Dress', 'The Forgotten Bride',
-    'The Guiding Flame', 'Phantom Purr Blanket', 'Last Breath Below', 'Coral Mourning Top',
-    'Sea Of Echoes', 'Drowned Enchantress'
+    'Electric Enchant Glare', 'Glimmer Cursed Elbow', 'Witch\'s Plasma Top', 'Witch\'s Plasma Trail',
+    'Plasma Flow Cape', 'Witch\'s Venom Mask', 'Glitter Top', 'Glitter Skirt',
+    'Neon Corset', 'Melting Shirt', 'Skeleton Shirt', 'Fluff Sleeves',
+    'Fluff Skirt', 'Neon Cape'
   ];
 
   const rareBannerItems = [
-    'Gloom\'s Glare', 'The Last Glance', 'Shadowed Lips', 'Glow Of The Deep',
-    'Haunted Glow', 'Boo Kitty Buddies', 'Silly Spirit', 'Anchor Of Regret',
-    'Séance Blouse', 'Widow\'s Blouse', 'Haunted Pleats', 'Wraith Drape',
-    'Grave Dandy Shorts', 'Gothic Benediction', 'Midnight Ministry', 'The Eternal Bride',
-    'Holy Mourner', 'Spirit Starfish', 'Skelly Meowrmi Night Cap', 'Glisten Of The Deep',
-    'Wraith Claws', 'Bootiful Socks', 'Phantom Kicks', 'Séance Boots', 'Dark Dream Heels'
+    'Plasma Drip Top', 'Luminous Remains Shirt', 'Arcane Luster Top', 'Arcane Luster Skirt',
+    'Luminous Remains Pants', 'Voltage Enchantress Neck', 'Sorcery Base', 'Voltage Enchantress Boots',
+    'Plasma Drip Thighs', 'Voltage Enchantress Thighs', 'Neon Gloves', 'Potion Handbag',
+    'Witch Glare', 'Neon Smoke', 'Witch Staff'
   ];
 
   for (const itemName of legendaryBannerItems) {
@@ -221,24 +210,24 @@ async function seed() {
   // Add some items to user inventory
   const starterItems = [
     // Rare items
-    { name: 'Séance Boots', quantity: 2, favorited: 0 },
-    { name: 'Grave Dandy Shorts', quantity: 2, favorited: 0 },
-    { name: 'Shadowed Lips', quantity: 2, favorited: 0 },
-    { name: 'Wraith Drape', quantity: 1, favorited: 0 },
-    { name: 'Holy Mourner', quantity: 1, favorited: 1 },
+    { name: 'Voltage Enchantress Boots', quantity: 2, favorited: 0 },
+    { name: 'Luminous Remains Pants', quantity: 2, favorited: 0 },
+    { name: 'Plasma Drip Top', quantity: 2, favorited: 0 },
+    { name: 'Arcane Luster Skirt', quantity: 1, favorited: 0 },
+    { name: 'Neon Gloves', quantity: 1, favorited: 1 },
 
     // Epic items
-    { name: 'The Guiding Flame', quantity: 2, favorited: 0 },
-    { name: 'Wailing Tide Eyes', quantity: 2, favorited: 0 },
-    { name: 'Gothic Doll Dress', quantity: 1, favorited: 1 },
-    { name: 'Purrpuff', quantity: 2, favorited: 0 },
-    { name: 'Drowned Enchantress', quantity: 1, favorited: 1 },
+    { name: 'Glitter Top', quantity: 2, favorited: 0 },
+    { name: 'Electric Enchant Glare', quantity: 2, favorited: 0 },
+    { name: 'Neon Corset', quantity: 1, favorited: 1 },
+    { name: 'Witch\'s Venom Mask', quantity: 2, favorited: 0 },
+    { name: 'Fluff Skirt', quantity: 1, favorited: 1 },
 
     // Additional items
-    { name: 'Spirit Starfish', quantity: 2, favorited: 0 },
-    { name: 'Anchor Of Regret', quantity: 1, favorited: 0 },
-    { name: 'Silly Spirit', quantity: 1, favorited: 0 },
-    { name: 'Tide Cursed Tresses', quantity: 1, favorited: 1 }
+    { name: 'Potion Handbag', quantity: 2, favorited: 0 },
+    { name: 'Witch Staff', quantity: 1, favorited: 0 },
+    { name: 'Neon Smoke', quantity: 1, favorited: 0 },
+    { name: 'Witch Glare', quantity: 1, favorited: 1 }
   ];
 
   // Add items as separate entries (no stacking)

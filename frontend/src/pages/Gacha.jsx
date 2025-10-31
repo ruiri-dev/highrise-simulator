@@ -337,8 +337,8 @@ const Gacha = ({ user, refreshUser }) => {
       <div style={styles.bannerCard}>
         <div style={styles.bannerImage}>
           <img
-            src="https://cdn.highrisegame.com/releases/2025/9/gachas/ghost-stories/GhostStories2025_SmallGrabBanner_Event@2x.webp"
-            alt="Ghost Stories Banner"
+            src="https://cdn.highrisegame.com/releases/2025/9/gachas/prism-hex/Neonwitch_promoUINeonwitch2025_GrabBanner.webp"
+            alt="Prism Hex Banner"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </div>
