@@ -10,6 +10,8 @@ const Inventory = ({ user, refreshUser }) => {
   const [filter, setFilter] = useState('all');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [itemsToDisenchant, setItemsToDisenchant] = useState([]);
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [isHolding, setIsHolding] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -55,6 +57,27 @@ const Inventory = ({ user, refreshUser }) => {
   const sortByRarity = (items) => {
     const rarityOrder = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
     return items.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
+  };
+
+  const calculateDisenchantRewards = (items) => {
+    const rarityValues = {
+      legendary: { gold: 10, silver: 0 },
+      epic: { gold: 5, silver: 0 },
+      rare: { gold: 0, silver: 3 },
+      uncommon: { gold: 0, silver: 2 },
+      common: { gold: 0, silver: 1 }
+    };
+
+    let totalGold = 0;
+    let totalSilver = 0;
+
+    items.forEach(item => {
+      const values = rarityValues[item.rarity] || { gold: 0, silver: 0 };
+      totalGold += values.gold;
+      totalSilver += values.silver;
+    });
+
+    return { gold: totalGold, silver: totalSilver };
   };
 
   const disenchantSelected = async () => {
@@ -432,6 +455,41 @@ const Inventory = ({ user, refreshUser }) => {
               <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#9ca3af' }}>
                 Are you sure you want to disenchant these {itemsToDisenchant.length} items?
               </p>
+              <div style={{
+                marginTop: '12px',
+                padding: '12px',
+                background: '#2a2a2a',
+                borderRadius: '8px',
+                display: 'flex',
+                gap: '16px',
+                justifyContent: 'center'
+              }}>
+                {(() => {
+                  const rewards = calculateDisenchantRewards(itemsToDisenchant);
+                  return (
+                    <>
+                      {rewards.gold > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '18px' }}>🟡</span>
+                          <span style={{ fontSize: '16px', fontWeight: '700', color: '#f59e0b' }}>
+                            +{rewards.gold}
+                          </span>
+                          <span style={{ fontSize: '13px', color: '#9ca3af' }}>Gold</span>
+                        </div>
+                      )}
+                      {rewards.silver > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '18px' }}>⚪</span>
+                          <span style={{ fontSize: '16px', fontWeight: '700', color: '#9ca3af' }}>
+                            +{rewards.silver}
+                          </span>
+                          <span style={{ fontSize: '13px', color: '#6b7280' }}>Silver</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
             </div>
 
             <div style={{
@@ -501,7 +559,11 @@ const Inventory = ({ user, refreshUser }) => {
                   border: 'none',
                   cursor: 'pointer'
                 }}
-                onClick={() => setShowConfirmModal(false)}
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setHoldProgress(0);
+                  setIsHolding(false);
+                }}
               >
                 Cancel
               </button>
@@ -515,17 +577,82 @@ const Inventory = ({ user, refreshUser }) => {
                   fontSize: '14px',
                   fontWeight: '600',
                   border: 'none',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
-                onClick={() => {
-                  if (selectedItems.size > 0) {
-                    confirmDisenchant();
-                  } else {
-                    confirmDisenchantAllUnfavorited();
-                  }
+                onMouseDown={() => {
+                  setIsHolding(true);
+                  let progress = 0;
+                  const interval = setInterval(() => {
+                    progress += 2;
+                    setHoldProgress(progress);
+                    if (progress >= 100) {
+                      clearInterval(interval);
+                      setIsHolding(false);
+                      setHoldProgress(0);
+                      if (selectedItems.size > 0) {
+                        confirmDisenchant();
+                      } else {
+                        confirmDisenchantAllUnfavorited();
+                      }
+                    }
+                  }, 20);
+
+                  const handleMouseUp = () => {
+                    clearInterval(interval);
+                    setIsHolding(false);
+                    setHoldProgress(0);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    document.removeEventListener('mouseleave', handleMouseUp);
+                  };
+
+                  document.addEventListener('mouseup', handleMouseUp);
+                  document.addEventListener('mouseleave', handleMouseUp);
+                }}
+                onTouchStart={() => {
+                  setIsHolding(true);
+                  let progress = 0;
+                  const interval = setInterval(() => {
+                    progress += 2;
+                    setHoldProgress(progress);
+                    if (progress >= 100) {
+                      clearInterval(interval);
+                      setIsHolding(false);
+                      setHoldProgress(0);
+                      if (selectedItems.size > 0) {
+                        confirmDisenchant();
+                      } else {
+                        confirmDisenchantAllUnfavorited();
+                      }
+                    }
+                  }, 20);
+
+                  const handleTouchEnd = () => {
+                    clearInterval(interval);
+                    setIsHolding(false);
+                    setHoldProgress(0);
+                    document.removeEventListener('touchend', handleTouchEnd);
+                    document.removeEventListener('touchcancel', handleTouchEnd);
+                  };
+
+                  document.addEventListener('touchend', handleTouchEnd);
+                  document.addEventListener('touchcancel', handleTouchEnd);
                 }}
               >
-                Disenchant All
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  width: `${holdProgress}%`,
+                  background: '#dc2626',
+                  transition: 'width 0.02s linear',
+                  zIndex: 0
+                }} />
+                <span style={{ position: 'relative', zIndex: 1 }}>
+                  {isHolding ? 'Hold to Confirm...' : 'Hold to Disenchant'}
+                </span>
               </button>
             </div>
           </div>
