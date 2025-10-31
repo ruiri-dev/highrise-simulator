@@ -5,6 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const DevTools = ({ user, refreshUser, onClose }) => {
   const [goldAmount, setGoldAmount] = useState(1000);
   const [silverAmount, setSilverAmount] = useState(100);
+  const [spinAmount, setSpinAmount] = useState(10);
   const [isOpen, setIsOpen] = useState(false);
 
   const addGoldTokens = async () => {
@@ -40,6 +41,25 @@ const DevTools = ({ user, refreshUser, onClose }) => {
       alert(`Added ${silverAmount} silver tokens!`);
     } catch (error) {
       console.error('Error adding silver tokens:', error);
+    }
+  };
+
+  const addSpinTokens = async () => {
+    try {
+      await fetch(`${API_URL}/dev/add-tokens`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          goldTokens: 0,
+          silverTokens: 0,
+          spinTokens: spinAmount
+        })
+      });
+      await refreshUser();
+      alert(`Added ${spinAmount} spin tokens!`);
+    } catch (error) {
+      console.error('Error adding spin tokens:', error);
     }
   };
 
@@ -210,6 +230,21 @@ const DevTools = ({ user, refreshUser, onClose }) => {
                 + Silver
               </button>
             </div>
+            <div style={styles.inputGroup}>
+              <input
+                type="number"
+                value={spinAmount}
+                onChange={(e) => setSpinAmount(parseInt(e.target.value) || 0)}
+                style={styles.input}
+                placeholder="Spin amount"
+              />
+              <button
+                style={{...styles.button, ...styles.buttonPrimary}}
+                onClick={addSpinTokens}
+              >
+                + Spin
+              </button>
+            </div>
           </div>
 
           <div style={styles.section}>
@@ -233,7 +268,7 @@ const DevTools = ({ user, refreshUser, onClose }) => {
           </div>
 
           <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '12px' }}>
-            Current: {user?.gold_swap_tokens || 0} gold, {user?.silver_swap_tokens || 0} silver
+            Current: {user?.gold_swap_tokens || 0} gold, {user?.silver_swap_tokens || 0} silver, {user?.spin_tokens || 0} spin
           </div>
         </div>
       )}
