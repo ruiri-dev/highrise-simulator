@@ -276,7 +276,21 @@ app.post('/api/shop/purchase', async (req, res) => {
       return res.status(400).json({ error: 'Insufficient tokens' });
     }
 
-    // Check stock limit
+    // Check global stock limit (for entire userbase)
+    if (shopItem.global_stock_limit !== null) {
+      if (shopItem.global_stock_purchased + quantity > shopItem.global_stock_limit) {
+        return res.status(400).json({ error: 'Item sold out globally' });
+      }
+
+      // Update global stock purchased
+      await dbRun(`
+        UPDATE shop_items
+        SET global_stock_purchased = global_stock_purchased + ?
+        WHERE id = ?
+      `, [quantity, shopItemId]);
+    }
+
+    // Check per-user stock limit
     if (shopItem.stock_limit !== null) {
       const purchased = await dbGet(`
         SELECT COALESCE(quantity_purchased, 0) as quantity_purchased
@@ -286,7 +300,7 @@ app.post('/api/shop/purchase', async (req, res) => {
 
       const currentPurchased = purchased ? purchased.quantity_purchased : 0;
       if (currentPurchased + quantity > shopItem.stock_limit) {
-        return res.status(400).json({ error: 'Stock limit exceeded' });
+        return res.status(400).json({ error: 'Purchase limit exceeded' });
       }
 
       // Update or insert purchase record

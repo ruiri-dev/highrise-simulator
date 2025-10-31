@@ -73,6 +73,12 @@ const Shop = ({ user, refreshUser }) => {
     const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
     if (user[tokenField] < item.price) return false;
 
+    // Check global stock limit
+    if (item.global_stock_limit !== null) {
+      if (item.global_stock_purchased >= item.global_stock_limit) return false;
+    }
+
+    // Check per-user stock limit
     if (item.stock_limit !== null) {
       const purchased = purchases[item.id] || 0;
       if (purchased >= item.stock_limit) return false;
@@ -323,22 +329,27 @@ const Shop = ({ user, refreshUser }) => {
           <div style={{
             margin: '0 20px 12px',
             padding: '12px 16px',
-            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+            background: activeTab === 'gold'
+              ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)'
+              : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
             borderRadius: '12px',
             textAlign: 'center',
             fontSize: '13px',
             fontWeight: '700',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
-            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+            boxShadow: activeTab === 'gold'
+              ? '0 4px 16px rgba(251, 191, 36, 0.5)'
+              : '0 4px 12px rgba(245, 158, 11, 0.3)'
           }}>
-            ⭐ Limited Deal ⭐
+            {activeTab === 'gold' ? '🌟 Limited Edition - Global Stock 🌟' : '⭐ Limited Deal ⭐'}
           </div>
           <div style={{...styles.itemsGrid, paddingBottom: '8px'}}>
             {featuredItems.map(item => {
               const purchased = purchases[item.id] || 0;
               const canBuy = canPurchase(item);
-              const soldOut = item.stock_limit && purchased >= item.stock_limit;
+              const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
+                             (item.stock_limit && purchased >= item.stock_limit);
 
               return (
                 <div
@@ -387,7 +398,19 @@ const Shop = ({ user, refreshUser }) => {
                       </>
                     )}
 
-                    {item.stock_limit && (
+                    {item.global_stock_limit && (
+                      <div style={{
+                        ...styles.limitBadge,
+                        background: 'rgba(251, 191, 36, 0.95)',
+                        color: '#000',
+                        fontWeight: '700',
+                        fontSize: '10px'
+                      }}>
+                        {item.global_stock_purchased}/{item.global_stock_limit}
+                      </div>
+                    )}
+
+                    {item.stock_limit && !item.global_stock_limit && (
                       <div style={styles.limitBadge}>
                         {purchased}/{item.stock_limit}
                       </div>
@@ -432,7 +455,8 @@ const Shop = ({ user, refreshUser }) => {
         {regularItems.map(item => {
           const purchased = purchases[item.id] || 0;
           const canBuy = canPurchase(item);
-          const soldOut = item.stock_limit && purchased >= item.stock_limit;
+          const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
+                         (item.stock_limit && purchased >= item.stock_limit);
 
           return (
             <div
@@ -481,7 +505,19 @@ const Shop = ({ user, refreshUser }) => {
                   </>
                 )}
 
-                {item.stock_limit && (
+                {item.global_stock_limit && (
+                  <div style={{
+                    ...styles.limitBadge,
+                    background: 'rgba(251, 191, 36, 0.95)',
+                    color: '#000',
+                    fontWeight: '700',
+                    fontSize: '10px'
+                  }}>
+                    {item.global_stock_purchased}/{item.global_stock_limit}
+                  </div>
+                )}
+
+                {item.stock_limit && !item.global_stock_limit && (
                   <div style={styles.limitBadge}>
                     {purchased}/{item.stock_limit}
                   </div>

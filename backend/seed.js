@@ -110,9 +110,12 @@ async function seed() {
 
   // Create shop items - Gold Shop
   const goldShopItems = [
+    // Featured Legendary items with GLOBAL stock limit (for entire userbase)
+    { item_name: 'Madison Charm Hair', price: 100, item_type: 'legendary_item', global_stock_limit: 100, is_featured: true },
+    { item_name: 'Beautiful Blowout', price: 100, item_type: 'legendary_item', global_stock_limit: 100, is_featured: true },
+
+    // Regular items
     { item_name: 'Potion Shop Background', price: 1000, item_type: 'background' },
-    { item_name: 'Madison Charm Hair', price: 100, item_type: 'legendary_item', stock_limit: 100 },
-    { item_name: 'Beautiful Blowout', price: 100, item_type: 'legendary_item', stock_limit: 100 },
     { item_name: 'Gothic Doll Dress', price: 70, item_type: 'epic_item' },
     { item_name: 'The Guiding Flame', price: 70, item_type: 'epic_item' },
     { item_name: 'Purrpuff', price: 70, item_type: 'epic_item' },
@@ -124,8 +127,8 @@ async function seed() {
   for (const shopItem of goldShopItems) {
     const itemId = shopItem.item_name ? itemIds[shopItem.item_name] : null;
     await dbRun(
-      'INSERT INTO shop_items (item_id, shop_type, price, item_type, stock_limit) VALUES (?, ?, ?, ?, ?)',
-      [itemId, 'gold', shopItem.price, shopItem.item_type, shopItem.stock_limit || null]
+      'INSERT INTO shop_items (item_id, shop_type, price, item_type, stock_limit, global_stock_limit, global_stock_purchased, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [itemId, 'gold', shopItem.price, shopItem.item_type, shopItem.stock_limit || null, shopItem.global_stock_limit || null, 0, shopItem.is_featured ? 1 : 0]
     );
   }
 
@@ -146,8 +149,8 @@ async function seed() {
   for (const shopItem of silverShopItems) {
     const itemId = shopItem.item_name ? itemIds[shopItem.item_name] : null;
     await dbRun(
-      'INSERT INTO shop_items (item_id, shop_type, price, item_type, stock_limit, quantity, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [itemId, 'silver', shopItem.price, shopItem.item_type, shopItem.stock_limit || null, shopItem.quantity || 1, shopItem.is_featured ? 1 : 0]
+      'INSERT INTO shop_items (item_id, shop_type, price, item_type, stock_limit, global_stock_limit, global_stock_purchased, quantity, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [itemId, 'silver', shopItem.price, shopItem.item_type, shopItem.stock_limit || null, shopItem.global_stock_limit || null, 0, shopItem.quantity || 1, shopItem.is_featured ? 1 : 0]
     );
   }
 

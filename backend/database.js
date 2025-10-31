@@ -55,7 +55,9 @@ export function initDatabase() {
         item_id INTEGER,
         shop_type TEXT NOT NULL, -- gold, silver
         price INTEGER NOT NULL,
-        stock_limit INTEGER DEFAULT NULL, -- NULL means unlimited
+        stock_limit INTEGER DEFAULT NULL, -- per-user limit (NULL means unlimited)
+        global_stock_limit INTEGER DEFAULT NULL, -- global limit for all users (NULL means unlimited)
+        global_stock_purchased INTEGER DEFAULT 0, -- track global purchases
         quantity INTEGER DEFAULT 1, -- quantity per purchase
         item_type TEXT, -- background, epic_item, spin_token, boost_token, live_token, rare_item
         is_featured BOOLEAN DEFAULT 0, -- featured deals show at top
