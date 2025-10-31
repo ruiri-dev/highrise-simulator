@@ -8,6 +8,8 @@ const Inventory = ({ user, refreshUser }) => {
   const [disenchantMode, setDisenchantMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [filter, setFilter] = useState('all');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [itemsToDisenchant, setItemsToDisenchant] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -50,13 +52,23 @@ const Inventory = ({ user, refreshUser }) => {
     setSelectedItems(newSelected);
   };
 
+  const sortByRarity = (items) => {
+    const rarityOrder = { legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4 };
+    return items.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
+  };
+
   const disenchantSelected = async () => {
     if (selectedItems.size === 0) {
       alert('No items selected');
       return;
     }
 
-    if (!confirm(`Disenchant ${selectedItems.size} items?`)) return;
+    const items = inventory.filter(item => selectedItems.has(item.id));
+    setItemsToDisenchant(sortByRarity(items));
+    setShowConfirmModal(true);
+  };
+
+  const confirmDisenchant = async () => {
 
     try {
       const response = await fetch(`${API_URL}/inventory/disenchant`, {
@@ -71,16 +83,19 @@ const Inventory = ({ user, refreshUser }) => {
       const result = await response.json();
 
       if (response.ok) {
+        setShowConfirmModal(false);
         alert(`Earned ${result.goldEarned} gold and ${result.silverEarned} silver tokens!`);
         setSelectedItems(new Set());
         setDisenchantMode(false);
         await refreshUser();
         await loadInventory();
       } else {
+        setShowConfirmModal(false);
         alert(result.error || 'Disenchant failed');
       }
     } catch (error) {
       console.error('Error disenchanting:', error);
+      setShowConfirmModal(false);
       alert('Disenchant failed');
     }
   };
@@ -130,8 +145,12 @@ const Inventory = ({ user, refreshUser }) => {
       return;
     }
 
-    const filterText = filter === 'all' ? '' : ` ${filter}`;
-    if (!confirm(`Disenchant all ${unfavorited.length} unfavorited${filterText} items?`)) return;
+    setItemsToDisenchant(sortByRarity(unfavorited));
+    setShowConfirmModal(true);
+  };
+
+  const confirmDisenchantAllUnfavorited = async () => {
+    const unfavorited = itemsToDisenchant;
 
     try {
       const response = await fetch(`${API_URL}/inventory/disenchant`, {
@@ -146,14 +165,17 @@ const Inventory = ({ user, refreshUser }) => {
       const result = await response.json();
 
       if (response.ok) {
+        setShowConfirmModal(false);
         alert(`Earned ${result.goldEarned} gold and ${result.silverEarned} silver tokens!`);
         await refreshUser();
         await loadInventory();
       } else {
+        setShowConfirmModal(false);
         alert(result.error || 'Disenchant failed');
       }
     } catch (error) {
       console.error('Error disenchanting:', error);
+      setShowConfirmModal(false);
       alert('Disenchant failed');
     }
   };
@@ -374,6 +396,139 @@ const Inventory = ({ user, refreshUser }) => {
       {filteredInventory.length === 0 && (
         <div style={{ padding: '40px 20px', textAlign: 'center', color: '#6b7280' }}>
           No items found
+        </div>
+      )}
+
+      {showConfirmModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#1a1a1a',
+            borderRadius: '16px',
+            maxWidth: '500px',
+            width: '100%',
+            maxHeight: '80vh',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              padding: '20px',
+              borderBottom: '1px solid #2a2a2a'
+            }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700' }}>
+                Confirm Disenchant
+              </h2>
+              <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#9ca3af' }}>
+                Are you sure you want to disenchant these {itemsToDisenchant.length} items?
+              </p>
+            </div>
+
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '16px 20px'
+            }}>
+              {itemsToDisenchant.map(item => (
+                <div key={item.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px',
+                  background: '#2a2a2a',
+                  borderRadius: '12px',
+                  marginBottom: '8px',
+                  border: `2px solid ${getRarityColor(item.rarity)}`
+                }}>
+                  <div style={{
+                    width: '60px',
+                    height: '60px',
+                    background: getRarityColor(item.rarity),
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+                    ) : (
+                      <span style={{ fontSize: '24px' }}>👕</span>
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '4px' }}>
+                      {item.name}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      color: getRarityColor(item.rarity)
+                    }}>
+                      {item.rarity}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{
+              padding: '16px 20px',
+              borderTop: '1px solid #2a2a2a',
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <button
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: '#2a2a2a',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: '#ef4444',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  if (selectedItems.size > 0) {
+                    confirmDisenchant();
+                  } else {
+                    confirmDisenchantAllUnfavorited();
+                  }
+                }}
+              >
+                Disenchant All
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
