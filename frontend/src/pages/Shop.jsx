@@ -8,6 +8,9 @@ const Shop = ({ user, refreshUser }) => {
   const [silverShopItems, setSilverShopItems] = useState([]);
   const [purchases, setPurchases] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [purchaseError, setPurchaseError] = useState('');
 
   useEffect(() => {
     loadShopData();
@@ -40,14 +43,29 @@ const Shop = ({ user, refreshUser }) => {
     }
   };
 
-  const handlePurchase = async (shopItem) => {
+  const openPurchaseModal = (shopItem) => {
+    setSelectedItem(shopItem);
+    setPurchaseError('');
+    setShowPurchaseModal(true);
+  };
+
+  const handlePurchase = async () => {
+    if (!selectedItem) return;
+
+    // Check if user has enough tokens
+    const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
+    if (user[tokenField] < selectedItem.price) {
+      setPurchaseError(`Not enough ${activeTab} swap tokens! You need ${selectedItem.price} but only have ${user[tokenField]}.`);
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}/shop/purchase`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
-          shopItemId: shopItem.id,
+          shopItemId: selectedItem.id,
           quantity: 1
         })
       });
@@ -55,15 +73,17 @@ const Shop = ({ user, refreshUser }) => {
       const result = await response.json();
 
       if (response.ok) {
+        setShowPurchaseModal(false);
+        setSelectedItem(null);
         await refreshUser();
         await loadShopData();
         alert('Purchase successful!');
       } else {
-        alert(result.error || 'Purchase failed');
+        setPurchaseError(result.error || 'Purchase failed');
       }
     } catch (error) {
       console.error('Error purchasing item:', error);
-      alert('Purchase failed');
+      setPurchaseError('Purchase failed. Please try again.');
     }
   };
 
@@ -396,7 +416,7 @@ const Shop = ({ user, refreshUser }) => {
                 <div
                   key={item.id}
                   style={styles.itemCard}
-                  onClick={() => canBuy && handlePurchase(item)}
+                  onClick={() => openPurchaseModal(item)}
                 >
                   <div style={{
                     ...styles.itemImage,
@@ -570,6 +590,155 @@ const Shop = ({ user, refreshUser }) => {
           );
         })}
       </div>
+
+      {showPurchaseModal && selectedItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#1a1a1a',
+            borderRadius: '16px',
+            maxWidth: '400px',
+            width: '100%',
+            padding: '20px'
+          }}>
+            <h2 style={{ margin: '0 0 16px', fontSize: '20px', fontWeight: '700' }}>
+              Confirm Purchase
+            </h2>
+
+            <div style={{
+              padding: '16px',
+              background: '#2a2a2a',
+              borderRadius: '12px',
+              marginBottom: '16px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '12px'
+              }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: selectedItem.rarity ? getRarityColor(selectedItem.rarity) : '#3b82f6',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {selectedItem.image_url ? (
+                    <img src={selectedItem.image_url} alt={getItemName(selectedItem)} style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+                  ) : selectedItem.item_type === 'spin_token' ? (
+                    <img src="/spin-token.png" alt="Spin Token" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+                  ) : selectedItem.item_type === 'boost_token' ? (
+                    <img src="/boost-token.png" alt="Boost Token" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+                  ) : selectedItem.item_type === 'live_token' ? (
+                    <img src="/voice-token.png" alt="Voice Token" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+                  ) : selectedItem.item_type === 'bubble_token' ? (
+                    <img src="/bubble-token.png" alt="Bubble Token" style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+                  ) : (
+                    <span style={{ fontSize: '32px' }}>✨</span>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
+                    {getItemName(selectedItem)}
+                  </div>
+                  {selectedItem.quantity && selectedItem.quantity > 1 && (
+                    <div style={{ fontSize: '13px', color: '#9ca3af' }}>
+                      x{selectedItem.quantity}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px',
+                background: '#1a1a1a',
+                borderRadius: '8px'
+              }}>
+                <span style={{ fontSize: '14px', color: '#9ca3af' }}>Price:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '18px' }}>{activeTab === 'gold' ? '🟡' : '⚪'}</span>
+                  <span style={{ fontSize: '18px', fontWeight: '700', color: activeTab === 'gold' ? '#f59e0b' : '#9ca3af' }}>
+                    {selectedItem.price}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {purchaseError && (
+              <div style={{
+                padding: '12px',
+                background: '#7f1d1d',
+                borderRadius: '8px',
+                marginBottom: '16px',
+                fontSize: '14px',
+                color: '#fca5a5'
+              }}>
+                {purchaseError}
+              </div>
+            )}
+
+            <div style={{
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <button
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: '#2a2a2a',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  setShowPurchaseModal(false);
+                  setSelectedItem(null);
+                  setPurchaseError('');
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: activeTab === 'gold' ? '#f59e0b' : '#9ca3af',
+                  color: '#000',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onClick={handlePurchase}
+              >
+                Purchase
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
