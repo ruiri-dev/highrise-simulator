@@ -208,8 +208,8 @@ async function seed() {
 
   // Create default user with some starting items and tokens
   const userResult = await dbRun(
-    'INSERT INTO users (username, gold_swap_tokens, silver_swap_tokens) VALUES (?, ?, ?)',
-    ['demo_user', 7833, 4]
+    'INSERT INTO users (username, gold_swap_tokens, silver_swap_tokens, spin_tokens) VALUES (?, ?, ?, ?)',
+    ['demo_user', 0, 0, 10]
   );
   const userId = userResult.id;
 
