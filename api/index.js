@@ -666,6 +666,69 @@ app.post('/api/dev/reset-pity', async (req, res) => {
   }
 });
 
+// Reset inventory AND currencies to starting state (dev only)
+app.post('/api/dev/reset-all', async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Reset all currencies to starting state
+    await dbRun(`
+      UPDATE users
+      SET gold_swap_tokens = 0,
+          silver_swap_tokens = 0,
+          spin_tokens = 10
+      WHERE id = ?
+    `, [userId]);
+
+    // Delete all inventory
+    await dbRun('DELETE FROM user_inventory WHERE user_id = ?', [userId]);
+
+    // Get starter items from seed data
+    const starterItems = [
+      { name: 'Rogue\'s Halo', quantity: 4, favorited: 0 },
+      { name: 'VL Courtesy', quantity: 4, favorited: 0 },
+      { name: 'Séance Boots', quantity: 2, favorited: 0 },
+      { name: 'Grave Dandy Shorts', quantity: 2, favorited: 0 },
+      { name: 'Shadowed Lips', quantity: 2, favorited: 0 },
+      { name: 'Last Offering', quantity: 1, favorited: 0 },
+      { name: 'Wraith Drape', quantity: 1, favorited: 0 },
+      { name: 'Holy Mourner', quantity: 1, favorited: 1 },
+      { name: 'Haunting Stare', quantity: 1, favorited: 1 },
+      { name: 'The Guiding Flame', quantity: 2, favorited: 0 },
+      { name: 'Weeping Veil', quantity: 2, favorited: 0 },
+      { name: 'Whispers In My Hair', quantity: 1, favorited: 1 },
+      { name: 'Wailing Tide Eyes', quantity: 2, favorited: 0 },
+      { name: 'Gothic Doll Dress', quantity: 1, favorited: 1 },
+      { name: 'Purrpuff', quantity: 2, favorited: 0 },
+      { name: 'Drowned Enchantress', quantity: 1, favorited: 1 },
+      { name: 'Spirit Starfish', quantity: 2, favorited: 0 },
+      { name: 'Anchor Of Regret', quantity: 1, favorited: 0 },
+      { name: 'Silly Spirit', quantity: 1, favorited: 0 },
+      { name: 'Tide Cursed Tresses', quantity: 1, favorited: 1 }
+    ];
+
+    // Re-add starter items as separate entries
+    for (const starter of starterItems) {
+      const item = await dbGet('SELECT id FROM items WHERE name = ?', [starter.name]);
+      if (item) {
+        // Create separate entries for each duplicate
+        for (let i = 0; i < starter.quantity; i++) {
+          // Only the first item of duplicates gets favorited (if specified)
+          const shouldFavorite = i === 0 ? starter.favorited : 0;
+          await dbRun(`
+            INSERT INTO user_inventory (user_id, item_id, quantity, is_favorited)
+            VALUES (?, ?, 1, ?)
+          `, [userId, item.id, shouldFavorite]);
+        }
+      }
+    }
+
+    res.json({ success: true, message: 'Inventory and currencies reset to starting state' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ==================== STATISTICS ROUTES ====================
 
 // Get user statistics

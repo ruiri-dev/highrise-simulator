@@ -94,6 +94,22 @@ const DevTools = ({ user, refreshUser, onClose }) => {
     }
   };
 
+  const resetAll = async () => {
+    if (!confirm('Reset inventory AND currencies to starting state? This cannot be undone.')) return;
+
+    try {
+      await fetch(`${API_URL}/dev/reset-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id })
+      });
+      await refreshUser();
+      alert('Inventory and currencies reset to starting state!');
+    } catch (error) {
+      console.error('Error resetting all:', error);
+    }
+  };
+
   const styles = {
     container: {
       position: 'fixed',
@@ -264,6 +280,16 @@ const DevTools = ({ user, refreshUser, onClose }) => {
               onClick={resetPity}
             >
               Reset Pity Counters
+            </button>
+          </div>
+
+          <div style={{...styles.section, borderBottom: 'none'}}>
+            <div style={styles.sectionTitle}>Reset All</div>
+            <button
+              style={{...styles.button, ...styles.buttonDanger, ...styles.fullButton}}
+              onClick={resetAll}
+            >
+              Reset Inventory & Currencies
             </button>
           </div>
 
