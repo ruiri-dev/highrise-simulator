@@ -3,9 +3,7 @@ import React, { useState, useEffect } from 'react';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const Shop = ({ user, refreshUser }) => {
-  const [activeTab, setActiveTab] = useState('gold');
-  const [goldShopItems, setGoldShopItems] = useState([]);
-  const [silverShopItems, setSilverShopItems] = useState([]);
+  const [allShopItems, setAllShopItems] = useState([]);
   const [purchases, setPurchases] = useState({});
   const [loading, setLoading] = useState(true);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -29,8 +27,8 @@ const Shop = ({ user, refreshUser }) => {
       const silver = await silverRes.json();
       const purchasesData = await purchasesRes.json();
 
-      setGoldShopItems(gold);
-      setSilverShopItems(silver);
+      // Combine both shops
+      setAllShopItems([...gold, ...silver]);
 
       const purchasesMap = {};
       purchasesData.forEach(p => {
@@ -57,8 +55,8 @@ const Shop = ({ user, refreshUser }) => {
     const totalCost = selectedItem.price * purchaseQuantity;
 
     // Check if user has enough tokens
-    const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
-    const tokenName = activeTab === 'gold' ? 'Gold Swap Tokens' : 'Silver Swap Tokens';
+    const tokenField = selectedItem.shop_type === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
+    const tokenName = selectedItem.shop_type === 'gold' ? 'Gold Swap Tokens' : 'Silver Swap Tokens';
     if (user[tokenField] < totalCost) {
       setPurchaseError(`Not enough ${tokenName}! You need ${totalCost} but only have ${user[tokenField]}.`);
       return;
@@ -95,7 +93,7 @@ const Shop = ({ user, refreshUser }) => {
   const canPurchase = (item) => {
     if (!user) return false;
 
-    const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
+    const tokenField = item.shop_type === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
     if (user[tokenField] < item.price) return false;
 
     // Check global stock limit
@@ -124,9 +122,7 @@ const Shop = ({ user, refreshUser }) => {
   const styles = {
     container: {
       minHeight: '100vh',
-      background: activeTab === 'gold'
-        ? 'linear-gradient(180deg, #854d0e 0%, #0a0a0a 40%)'
-        : 'linear-gradient(180deg, #475569 0%, #0a0a0a 40%)',
+      background: 'linear-gradient(180deg, #854d0e 0%, #475569 20%, #0a0a0a 50%)',
       paddingTop: '70px',
       position: 'relative'
     },
@@ -138,14 +134,18 @@ const Shop = ({ user, refreshUser }) => {
       borderRadius: '12px',
       padding: '10px 16px',
       display: 'flex',
-      alignItems: 'center',
+      flexDirection: 'column',
       gap: '8px',
       fontSize: '16px',
       fontWeight: '700',
       color: '#fff',
-      border: '2px solid',
-      borderColor: activeTab === 'gold' ? '#f59e0b' : '#9ca3af',
+      border: '2px solid #f59e0b',
       zIndex: 10
+    },
+    tokenRow: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
     },
     header: {
       padding: '20px',
@@ -177,28 +177,6 @@ const Shop = ({ user, refreshUser }) => {
       fontSize: '14px',
       lineHeight: '1.6',
       color: '#d1d5db'
-    },
-    tabs: {
-      display: 'flex',
-      gap: '8px',
-      padding: '0 20px 16px',
-      background: 'transparent'
-    },
-    tab: {
-      flex: 1,
-      padding: '12px',
-      borderRadius: '12px',
-      background: 'rgba(42, 42, 42, 0.5)',
-      color: '#9ca3af',
-      fontSize: '14px',
-      fontWeight: '600',
-      transition: 'all 0.2s',
-      border: '1px solid transparent'
-    },
-    tabActive: {
-      background: 'rgba(0, 0, 0, 0.7)',
-      color: '#fff',
-      border: activeTab === 'gold' ? '1px solid #f59e0b' : '1px solid #9ca3af'
     },
     sectionTitle: {
       padding: '8px 20px 12px',
@@ -296,14 +274,6 @@ const Shop = ({ user, refreshUser }) => {
     return <div style={{ padding: '100px 20px', textAlign: 'center' }}>Loading shop...</div>;
   }
 
-  const items = activeTab === 'gold' ? goldShopItems : silverShopItems;
-  const tokenColor = activeTab === 'gold' ? '#f59e0b' : '#9ca3af';
-  const tokenIcon = activeTab === 'gold' ? '🟡' : '⚪';
-
-  // Separate featured and regular items
-  const featuredItems = items.filter(item => item.is_featured);
-  const regularItems = items.filter(item => !item.is_featured);
-
   const getRarityColor = (rarity) => {
     const colors = {
       legendary: '#f59e0b',
@@ -313,105 +283,86 @@ const Shop = ({ user, refreshUser }) => {
     return colors[rarity] || '#3b82f6';
   };
 
+  const getRarityOrder = (rarity) => {
+    const order = { legendary: 1, epic: 2, rare: 3 };
+    return order[rarity] || 4;
+  };
+
+  // Organize items
+  const limitedStockItems = allShopItems.filter(item =>
+    item.global_stock_limit !== null || item.stock_limit !== null
+  );
+
+  const regularItems = allShopItems.filter(item =>
+    item.global_stock_limit === null && item.stock_limit === null
+  );
+
+  // Sort limited items by rarity
+  limitedStockItems.sort((a, b) => {
+    const rarityDiff = getRarityOrder(a.rarity) - getRarityOrder(b.rarity);
+    if (rarityDiff !== 0) return rarityDiff;
+    return a.price - b.price;
+  });
+
+  // Group regular items by currency type (gold first, then silver), except spin tokens
+  const goldItems = regularItems.filter(item =>
+    item.shop_type === 'gold' && item.item_type !== 'spin_token'
+  );
+  const silverItems = regularItems.filter(item =>
+    item.shop_type === 'silver' && item.item_type !== 'spin_token'
+  );
+  const spinTokens = regularItems.filter(item =>
+    item.item_type === 'spin_token'
+  );
+
+  // Sort each group by rarity
+  goldItems.sort((a, b) => {
+    const rarityDiff = getRarityOrder(a.rarity) - getRarityOrder(b.rarity);
+    if (rarityDiff !== 0) return rarityDiff;
+    return a.price - b.price;
+  });
+
+  silverItems.sort((a, b) => {
+    const rarityDiff = getRarityOrder(a.rarity) - getRarityOrder(b.rarity);
+    if (rarityDiff !== 0) return rarityDiff;
+    return a.price - b.price;
+  });
+
+  spinTokens.sort((a, b) => a.price - b.price);
+
+  // Organize final item order
+  const organizedRegularItems = [...goldItems, ...silverItems, ...spinTokens];
+
   return (
     <div style={styles.container}>
       <div style={styles.tokenDisplay}>
-        <span>{tokenIcon}</span>
-        <span>{user?.[activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens'] || 0}</span>
+        <div style={styles.tokenRow}>
+          <span>🟡</span>
+          <span>{user?.gold_swap_tokens || 0}</span>
+        </div>
+        <div style={styles.tokenRow}>
+          <span>⚪</span>
+          <span>{user?.silver_swap_tokens || 0}</span>
+        </div>
       </div>
 
       <div style={styles.header}>
-        <div style={styles.icon}>{activeTab === 'gold' ? '🪙' : '⚪'}</div>
-        <div style={styles.title}>{activeTab === 'gold' ? 'Gold Swap Shop' : 'Silver Swap Shop'}</div>
+        <div style={styles.icon}>🪙</div>
+        <div style={styles.title}>Swap Shop</div>
       </div>
 
       <div style={styles.infoCard}>
         <div style={styles.infoIcon}>💡</div>
         <div style={styles.infoText}>
-          {activeTab === 'gold'
-            ? 'Use your gold swap tokens to purchase exclusive items, spin tokens, and more!'
-            : 'Use your silver swap tokens to get limited items and spin tokens!'}
+          Use your gold and silver swap tokens to purchase exclusive items, spin tokens, and more!
         </div>
       </div>
 
-      <div style={styles.tabs}>
-        <button
-          style={{...styles.tab, ...(activeTab === 'gold' ? styles.tabActive : {})}}
-          onClick={() => setActiveTab('gold')}
-        >
-          Gold Swap Shop
-        </button>
-        <button
-          style={{...styles.tab, ...(activeTab === 'silver' ? styles.tabActive : {})}}
-          onClick={() => setActiveTab('silver')}
-        >
-          Silver Swap Shop
-        </button>
-      </div>
-
-      {featuredItems.length > 0 && (
+      {limitedStockItems.length > 0 && (
         <>
-          <div style={{
-            margin: '0 20px 20px',
-            padding: '16px',
-            background: '#fff',
-            borderRadius: '16px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '8px'
-            }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: activeTab === 'gold' ? '#fbbf24' : '#f59e0b'
-              }} />
-              <div style={{
-                fontSize: '16px',
-                fontWeight: '700',
-                color: '#000',
-                textTransform: 'capitalize'
-              }}>
-                {activeTab === 'gold' ? 'Limited Edition' : 'Limited Deal'}
-              </div>
-            </div>
-            <div style={{
-              fontSize: '13px',
-              color: '#000',
-              fontWeight: '600',
-              marginBottom: '8px'
-            }}>
-              {activeTab === 'gold'
-                ? `${featuredItems.reduce((sum, item) => sum + (item.global_stock_limit - item.global_stock_purchased), 0)} items remaining globally`
-                : `${featuredItems[0]?.stock_limit} per user limit`}
-            </div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 12px',
-              background: activeTab === 'gold'
-                ? 'rgba(251, 191, 36, 0.15)'
-                : 'rgba(245, 158, 11, 0.15)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: '600',
-              color: '#000'
-            }}>
-              <span>{activeTab === 'gold' ? '⚡' : '⭐'}</span>
-              <span>
-                {activeTab === 'gold'
-                  ? `${Math.round((featuredItems.reduce((sum, item) => sum + item.global_stock_purchased, 0) / featuredItems.reduce((sum, item) => sum + item.global_stock_limit, 0)) * 100)}% Claimed`
-                  : 'Exclusive Offer'}
-              </span>
-            </div>
-          </div>
-          <div style={{...styles.itemsGrid, paddingBottom: '8px', paddingTop: '0'}}>
-            {featuredItems.map(item => {
+          <div style={styles.sectionTitle}>⭐ Limited Stock Items</div>
+          <div style={{...styles.itemsGrid, paddingBottom: '20px', paddingTop: '0'}}>
+            {limitedStockItems.map(item => {
               const purchased = purchases[item.id] || 0;
               const canBuy = canPurchase(item);
               const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
@@ -485,7 +436,7 @@ const Shop = ({ user, refreshUser }) => {
                     )}
 
                     <div style={styles.costBadge}>
-                      <span>{tokenIcon}</span>
+                      <span>{item.shop_type === 'gold' ? '🟡' : '⚪'}</span>
                       <span>{item.price}</span>
                     </div>
 
@@ -503,98 +454,293 @@ const Shop = ({ user, refreshUser }) => {
         </>
       )}
 
-      <div style={styles.sectionTitle}>Available Items</div>
+      {goldItems.length > 0 && (
+        <>
+          <div style={{...styles.sectionTitle, color: '#f59e0b'}}>🟡 Gold Token Items</div>
+          <div style={{...styles.itemsGrid, paddingBottom: '20px'}}>
+            {goldItems.map(item => {
+              const purchased = purchases[item.id] || 0;
+              const canBuy = canPurchase(item);
+              const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
+                             (item.stock_limit && purchased >= item.stock_limit);
 
-      <div style={styles.itemsGrid}>
-        {regularItems.map(item => {
-          const purchased = purchases[item.id] || 0;
-          const canBuy = canPurchase(item);
-          const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
-                         (item.stock_limit && purchased >= item.stock_limit);
+              return (
+                <div
+                  key={item.id}
+                  style={styles.itemCard}
+                  onClick={() => openPurchaseModal(item)}
+                >
+                  <div style={{
+                    ...styles.itemImage,
+                    background: item.rarity ? getRarityColor(item.rarity) : '#3b82f6'
+                  }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={getItemName(item)}
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'spin_token' ? (
+                      <img
+                        src="/spin-token.png"
+                        alt="Spin Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'boost_token' ? (
+                      <img
+                        src="/boost-token.png"
+                        alt="Boost Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'live_token' ? (
+                      <img
+                        src="/voice-token.png"
+                        alt="Voice Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'bubble_token' ? (
+                      <img
+                        src="/bubble-token.png"
+                        alt="Bubble Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <>
+                        {item.item_type === 'background' && '🖼️'}
+                        {item.item_type === 'epic_item' && '✨'}
+                      </>
+                    )}
 
-          return (
-            <div
-              key={item.id}
-              style={styles.itemCard}
-              onClick={() => openPurchaseModal(item)}
-            >
-              <div style={{
-                ...styles.itemImage,
-                background: item.rarity ? getRarityColor(item.rarity) : '#3b82f6'
-              }}>
-                {item.image_url ? (
-                  <img
-                    src={item.image_url}
-                    alt={getItemName(item)}
-                    style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                  />
-                ) : item.item_type === 'spin_token' ? (
-                  <img
-                    src="/spin-token.png"
-                    alt="Spin Token"
-                    style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                  />
-                ) : item.item_type === 'boost_token' ? (
-                  <img
-                    src="/boost-token.png"
-                    alt="Boost Token"
-                    style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                  />
-                ) : item.item_type === 'live_token' ? (
-                  <img
-                    src="/voice-token.png"
-                    alt="Voice Token"
-                    style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                  />
-                ) : item.item_type === 'bubble_token' ? (
-                  <img
-                    src="/bubble-token.png"
-                    alt="Bubble Token"
-                    style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                  />
-                ) : (
-                  <>
-                    {item.item_type === 'background' && '🖼️'}
-                    {item.item_type === 'epic_item' && '✨'}
-                  </>
-                )}
+                    {item.stock_limit && !item.global_stock_limit && (
+                      <div style={styles.limitBadge}>
+                        {purchased}/{item.stock_limit}
+                      </div>
+                    )}
 
-                {item.stock_limit && !item.global_stock_limit && (
-                  <div style={styles.limitBadge}>
-                    {purchased}/{item.stock_limit}
+                    {item.quantity && item.quantity > 1 && (
+                      <div style={{...styles.limitBadge, left: '4px', right: 'auto'}}>
+                        x{item.quantity}
+                      </div>
+                    )}
+
+                    {item.rarity && (
+                      <div style={{...styles.rarityBadge, background: getRarityColor(item.rarity)}}>
+                        {item.rarity === 'legendary' && 'LEGENDARY'}
+                        {item.rarity === 'epic' && 'EPIC'}
+                        {item.rarity === 'rare' && 'RARE'}
+                      </div>
+                    )}
+
+                    <div style={styles.costBadge}>
+                      <span>{item.shop_type === 'gold' ? '🟡' : '⚪'}</span>
+                      <span>{item.price}</span>
+                    </div>
+
+                    {soldOut && (
+                      <div style={styles.soldOutOverlay}>
+                        SOLD OUT
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {item.quantity && item.quantity > 1 && (
-                  <div style={{...styles.limitBadge, left: '4px', right: 'auto'}}>
-                    x{item.quantity}
-                  </div>
-                )}
-
-                {item.rarity && (
-                  <div style={{...styles.rarityBadge, background: getRarityColor(item.rarity)}}>
-                    {item.rarity === 'legendary' && 'LEGENDARY'}
-                    {item.rarity === 'epic' && 'EPIC'}
-                    {item.rarity === 'rare' && 'RARE'}
-                  </div>
-                )}
-
-                <div style={styles.costBadge}>
-                  <span>{tokenIcon}</span>
-                  <span>{item.price}</span>
+                  <div style={styles.itemName}>{getItemName(item)}</div>
                 </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
-                {soldOut && (
-                  <div style={styles.soldOutOverlay}>
-                    SOLD OUT
+      {silverItems.length > 0 && (
+        <>
+          <div style={{...styles.sectionTitle, color: '#9ca3af'}}>⚪ Silver Token Items</div>
+          <div style={{...styles.itemsGrid, paddingBottom: '20px'}}>
+            {silverItems.map(item => {
+              const purchased = purchases[item.id] || 0;
+              const canBuy = canPurchase(item);
+              const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
+                             (item.stock_limit && purchased >= item.stock_limit);
+
+              return (
+                <div
+                  key={item.id}
+                  style={styles.itemCard}
+                  onClick={() => openPurchaseModal(item)}
+                >
+                  <div style={{
+                    ...styles.itemImage,
+                    background: item.rarity ? getRarityColor(item.rarity) : '#3b82f6'
+                  }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={getItemName(item)}
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'spin_token' ? (
+                      <img
+                        src="/spin-token.png"
+                        alt="Spin Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'boost_token' ? (
+                      <img
+                        src="/boost-token.png"
+                        alt="Boost Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'live_token' ? (
+                      <img
+                        src="/voice-token.png"
+                        alt="Voice Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'bubble_token' ? (
+                      <img
+                        src="/bubble-token.png"
+                        alt="Bubble Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <>
+                        {item.item_type === 'background' && '🖼️'}
+                        {item.item_type === 'epic_item' && '✨'}
+                      </>
+                    )}
+
+                    {item.stock_limit && !item.global_stock_limit && (
+                      <div style={styles.limitBadge}>
+                        {purchased}/{item.stock_limit}
+                      </div>
+                    )}
+
+                    {item.quantity && item.quantity > 1 && (
+                      <div style={{...styles.limitBadge, left: '4px', right: 'auto'}}>
+                        x{item.quantity}
+                      </div>
+                    )}
+
+                    {item.rarity && (
+                      <div style={{...styles.rarityBadge, background: getRarityColor(item.rarity)}}>
+                        {item.rarity === 'legendary' && 'LEGENDARY'}
+                        {item.rarity === 'epic' && 'EPIC'}
+                        {item.rarity === 'rare' && 'RARE'}
+                      </div>
+                    )}
+
+                    <div style={styles.costBadge}>
+                      <span>{item.shop_type === 'gold' ? '🟡' : '⚪'}</span>
+                      <span>{item.price}</span>
+                    </div>
+
+                    {soldOut && (
+                      <div style={styles.soldOutOverlay}>
+                        SOLD OUT
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div style={styles.itemName}>{getItemName(item)}</div>
-            </div>
-          );
-        })}
-      </div>
+                  <div style={styles.itemName}>{getItemName(item)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {spinTokens.length > 0 && (
+        <>
+          <div style={styles.sectionTitle}>🎰 Spin Tokens</div>
+          <div style={styles.itemsGrid}>
+            {spinTokens.map(item => {
+              const purchased = purchases[item.id] || 0;
+              const canBuy = canPurchase(item);
+              const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
+                             (item.stock_limit && purchased >= item.stock_limit);
+
+              return (
+                <div
+                  key={item.id}
+                  style={styles.itemCard}
+                  onClick={() => openPurchaseModal(item)}
+                >
+                  <div style={{
+                    ...styles.itemImage,
+                    background: item.rarity ? getRarityColor(item.rarity) : '#3b82f6'
+                  }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={getItemName(item)}
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'spin_token' ? (
+                      <img
+                        src="/spin-token.png"
+                        alt="Spin Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'boost_token' ? (
+                      <img
+                        src="/boost-token.png"
+                        alt="Boost Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'live_token' ? (
+                      <img
+                        src="/voice-token.png"
+                        alt="Voice Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : item.item_type === 'bubble_token' ? (
+                      <img
+                        src="/bubble-token.png"
+                        alt="Bubble Token"
+                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <>
+                        {item.item_type === 'background' && '🖼️'}
+                        {item.item_type === 'epic_item' && '✨'}
+                      </>
+                    )}
+
+                    {item.stock_limit && !item.global_stock_limit && (
+                      <div style={styles.limitBadge}>
+                        {purchased}/{item.stock_limit}
+                      </div>
+                    )}
+
+                    {item.quantity && item.quantity > 1 && (
+                      <div style={{...styles.limitBadge, left: '4px', right: 'auto'}}>
+                        x{item.quantity}
+                      </div>
+                    )}
+
+                    {item.rarity && (
+                      <div style={{...styles.rarityBadge, background: getRarityColor(item.rarity)}}>
+                        {item.rarity === 'legendary' && 'LEGENDARY'}
+                        {item.rarity === 'epic' && 'EPIC'}
+                        {item.rarity === 'rare' && 'RARE'}
+                      </div>
+                    )}
+
+                    <div style={styles.costBadge}>
+                      <span>{item.shop_type === 'gold' ? '🟡' : '⚪'}</span>
+                      <span>{item.price}</span>
+                    </div>
+
+                    {soldOut && (
+                      <div style={styles.soldOutOverlay}>
+                        SOLD OUT
+                      </div>
+                    )}
+                  </div>
+                  <div style={styles.itemName}>{getItemName(item)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {showPurchaseModal && selectedItem && (
         <div style={{
@@ -671,7 +817,7 @@ const Shop = ({ user, refreshUser }) => {
 
               {/* Quantity Selector */}
               {(() => {
-                const tokenField = activeTab === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
+                const tokenField = selectedItem.shop_type === 'gold' ? 'gold_swap_tokens' : 'silver_swap_tokens';
                 const maxAffordable = Math.floor(user[tokenField] / selectedItem.price);
                 return (
                   <div style={{
@@ -739,8 +885,8 @@ const Shop = ({ user, refreshUser }) => {
               }}>
                 <span style={{ fontSize: '14px', color: '#9ca3af' }}>Total Price:</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '18px' }}>{activeTab === 'gold' ? '🟡' : '⚪'}</span>
-                  <span style={{ fontSize: '18px', fontWeight: '700', color: activeTab === 'gold' ? '#f59e0b' : '#9ca3af' }}>
+                  <span style={{ fontSize: '18px' }}>{selectedItem.shop_type === 'gold' ? '🟡' : '⚪'}</span>
+                  <span style={{ fontSize: '18px', fontWeight: '700', color: selectedItem.shop_type === 'gold' ? '#f59e0b' : '#9ca3af' }}>
                     {selectedItem.price * purchaseQuantity}
                   </span>
                 </div>
@@ -789,7 +935,7 @@ const Shop = ({ user, refreshUser }) => {
                   flex: 1,
                   padding: '12px',
                   borderRadius: '8px',
-                  background: activeTab === 'gold' ? '#f59e0b' : '#9ca3af',
+                  background: selectedItem.shop_type === 'gold' ? '#f59e0b' : '#9ca3af',
                   color: '#000',
                   fontSize: '14px',
                   fontWeight: '600',
