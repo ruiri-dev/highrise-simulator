@@ -10,10 +10,30 @@ const Shop = ({ user, refreshUser }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [purchaseError, setPurchaseError] = useState('');
+  const [timeUntilReset, setTimeUntilReset] = useState('');
 
   useEffect(() => {
     loadShopData();
   }, [user]);
+
+  useEffect(() => {
+    const calculateTimeUntilReset = () => {
+      const now = new Date();
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+      const diff = nextMonth - now;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      setTimeUntilReset(`${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`);
+    };
+
+    calculateTimeUntilReset();
+    const interval = setInterval(calculateTimeUntilReset, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const loadShopData = async () => {
     try {
@@ -347,6 +367,28 @@ const Shop = ({ user, refreshUser }) => {
         <div style={styles.infoIcon}>💡</div>
         <div style={styles.infoText}>
           Use your gold and silver swap tokens to purchase exclusive items, spin tokens, and more! Shop contents cycle out every month.
+        </div>
+      </div>
+
+      <div style={{
+        margin: '0 20px 20px',
+        padding: '12px 16px',
+        background: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ fontSize: '14px', fontWeight: '600', color: '#d1d5db' }}>
+          Shop Reset:
+        </div>
+        <div style={{
+          fontSize: '16px',
+          fontWeight: '700',
+          color: '#fff',
+          fontFamily: 'monospace'
+        }}>
+          {timeUntilReset}
         </div>
       </div>
 
