@@ -122,7 +122,7 @@ const Shop = ({ user, refreshUser }) => {
   const styles = {
     container: {
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #854d0e 0%, #475569 20%, #0a0a0a 50%)',
+      background: 'linear-gradient(180deg, #14b8a6 0%, #0d9488 30%, #0a0a0a 60%)',
       paddingTop: '70px',
       position: 'relative'
     },
@@ -288,13 +288,15 @@ const Shop = ({ user, refreshUser }) => {
     return order[rarity] || 4;
   };
 
-  // Organize items
+  // Organize items - exclude spin tokens from limited stock section
   const limitedStockItems = allShopItems.filter(item =>
-    item.global_stock_limit !== null || item.stock_limit !== null
+    (item.global_stock_limit !== null || item.stock_limit !== null) &&
+    item.item_type !== 'spin_token'
   );
 
   const regularItems = allShopItems.filter(item =>
-    item.global_stock_limit === null && item.stock_limit === null
+    (item.global_stock_limit === null && item.stock_limit === null) ||
+    item.item_type === 'spin_token'
   );
 
   // Sort limited items by rarity
