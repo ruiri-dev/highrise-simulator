@@ -354,7 +354,7 @@ const Shop = ({ user, refreshUser }) => {
       <div style={styles.infoCard}>
         <div style={styles.infoIcon}>💡</div>
         <div style={styles.infoText}>
-          Use your gold and silver swap tokens to purchase exclusive items, spin tokens, and more!
+          Use your gold and silver swap tokens to purchase exclusive items, spin tokens, and more! Shop contents cycle out every month.
         </div>
       </div>
 
