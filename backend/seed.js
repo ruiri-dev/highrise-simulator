@@ -100,9 +100,9 @@ async function seed() {
 
   // Create shop items - Gold Shop
   const goldShopItems = [
-    // Featured Legendary items with GLOBAL stock limit (for entire userbase)
-    { item_name: 'Madison Charm Hair', price: 100, item_type: 'legendary_item', global_stock_limit: 100, is_featured: true },
-    { item_name: 'Beautiful Blowout', price: 100, item_type: 'legendary_item', global_stock_limit: 100, is_featured: true },
+    // Featured Legendary items without global stock limits
+    { item_name: 'Madison Charm Hair', price: 100, item_type: 'legendary_item', is_featured: true },
+    { item_name: 'Beautiful Blowout', price: 100, item_type: 'legendary_item', is_featured: true },
 
     // Regular items
     { item_name: 'Potion Shop Background', price: 1000, item_type: 'background' },
