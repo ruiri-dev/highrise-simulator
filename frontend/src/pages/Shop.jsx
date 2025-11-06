@@ -304,15 +304,12 @@ const Shop = ({ user, refreshUser }) => {
     return a.price - b.price;
   });
 
-  // Group regular items by currency type (gold first, then silver), except spin tokens
+  // Group regular items by currency type (gold first, then silver)
   const goldItems = regularItems.filter(item =>
-    item.shop_type === 'gold' && item.item_type !== 'spin_token'
+    item.shop_type === 'gold'
   );
   const silverItems = regularItems.filter(item =>
-    item.shop_type === 'silver' && item.item_type !== 'spin_token'
-  );
-  const spinTokens = regularItems.filter(item =>
-    item.item_type === 'spin_token'
+    item.shop_type === 'silver'
   );
 
   // Sort each group by rarity
@@ -327,11 +324,6 @@ const Shop = ({ user, refreshUser }) => {
     if (rarityDiff !== 0) return rarityDiff;
     return a.price - b.price;
   });
-
-  spinTokens.sort((a, b) => a.price - b.price);
-
-  // Organize final item order
-  const organizedRegularItems = [...goldItems, ...silverItems, ...spinTokens];
 
   return (
     <div style={styles.container}>
@@ -646,101 +638,6 @@ const Shop = ({ user, refreshUser }) => {
         </>
       )}
 
-      {spinTokens.length > 0 && (
-        <>
-          <div style={styles.sectionTitle}>🎰 Spin Tokens</div>
-          <div style={styles.itemsGrid}>
-            {spinTokens.map(item => {
-              const purchased = purchases[item.id] || 0;
-              const canBuy = canPurchase(item);
-              const soldOut = (item.global_stock_limit && item.global_stock_purchased >= item.global_stock_limit) ||
-                             (item.stock_limit && purchased >= item.stock_limit);
-
-              return (
-                <div
-                  key={item.id}
-                  style={styles.itemCard}
-                  onClick={() => openPurchaseModal(item)}
-                >
-                  <div style={{
-                    ...styles.itemImage,
-                    background: item.rarity ? getRarityColor(item.rarity) : '#3b82f6'
-                  }}>
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={getItemName(item)}
-                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                      />
-                    ) : item.item_type === 'spin_token' ? (
-                      <img
-                        src="/spin-token.png"
-                        alt="Spin Token"
-                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                      />
-                    ) : item.item_type === 'boost_token' ? (
-                      <img
-                        src="/boost-token.png"
-                        alt="Boost Token"
-                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                      />
-                    ) : item.item_type === 'live_token' ? (
-                      <img
-                        src="/voice-token.png"
-                        alt="Voice Token"
-                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                      />
-                    ) : item.item_type === 'bubble_token' ? (
-                      <img
-                        src="/bubble-token.png"
-                        alt="Bubble Token"
-                        style={{ width: '70%', height: '70%', objectFit: 'contain' }}
-                      />
-                    ) : (
-                      <>
-                        {item.item_type === 'background' && '🖼️'}
-                        {item.item_type === 'epic_item' && '✨'}
-                      </>
-                    )}
-
-                    {item.stock_limit && !item.global_stock_limit && (
-                      <div style={styles.limitBadge}>
-                        {purchased}/{item.stock_limit}
-                      </div>
-                    )}
-
-                    {item.quantity && item.quantity > 1 && (
-                      <div style={{...styles.limitBadge, left: '4px', right: 'auto'}}>
-                        x{item.quantity}
-                      </div>
-                    )}
-
-                    {item.rarity && (
-                      <div style={{...styles.rarityBadge, background: getRarityColor(item.rarity)}}>
-                        {item.rarity === 'legendary' && 'LEGENDARY'}
-                        {item.rarity === 'epic' && 'EPIC'}
-                        {item.rarity === 'rare' && 'RARE'}
-                      </div>
-                    )}
-
-                    <div style={styles.costBadge}>
-                      <span>{item.shop_type === 'gold' ? '🟡' : '⚪'}</span>
-                      <span>{item.price}</span>
-                    </div>
-
-                    {soldOut && (
-                      <div style={styles.soldOutOverlay}>
-                        SOLD OUT
-                      </div>
-                    )}
-                  </div>
-                  <div style={styles.itemName}>{getItemName(item)}</div>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
 
       {showPurchaseModal && selectedItem && (
         <div style={{
